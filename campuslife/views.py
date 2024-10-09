@@ -26,10 +26,10 @@ def picture_list(request):
         pictures = pictures.filter(available_vacancy__exact=available_vacancy)
 
     if lodge_name:
-        pictures = pictures.filter(lodge_location__icontains=lodge_name)
+        pictures = pictures.filter(lodge_name__icontains=lodge_name)
 
     if lodge_location:
-        pictures = pictures.filter(name__icontains=lodge_location)
+        pictures = pictures.filter(lodge_loaction__icontains=lodge_location)
 
     print(pictures.count())
     return render(request, 'campuslife/picture_list.html', {'pictures': pictures})
