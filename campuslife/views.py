@@ -11,7 +11,7 @@ def picture_list(request):
     available_vacancy = request.GET.get('available_vacancy')
     lodge_name = request.GET.get('lodge_name')
     lodge_location = request.GET.get('lodge_location')
-
+    lodge_price = request.GET.get('lodge_price')
     pictures = Picture.objects.all()
 
     min_price = request.GET.get('min_price')
