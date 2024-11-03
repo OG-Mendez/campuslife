@@ -59,7 +59,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "https://campuslife-xmb7.vercel.app"
+]
 
 ROOT_URLCONF = 'djangoProject2.urls'
 
