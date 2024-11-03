@@ -1,0 +1,49 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #ffffff; 
+    border-bottom: 1px solid #e0e0e0; 
+    height: 4rem;
+  }
+  
+  .logo-container {
+    display: flex;
+    align-items: center;
+    padding-left: 2rem;
+  }
+  
+  .logo {
+    width: 30px; 
+    height: 30px;
+    background-image: url('path/to/your/logo.svg'); 
+    background-size: contain;
+    background-repeat: no-repeat;
+    margin-right: 8px; 
+  }
+  
+  .title {
+    font-size: 1em;
+    color: #f57c00; 
+    margin: 0;
+  }
+  
+
+  @media (max-width: 768px) {
+    .navbar {
+        flex-direction: row;
+        padding: 10px;
+    }
+
+    .logo-container {
+        padding-left: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .title {
+        font-size: 1.2em;
+    }
+}
+ 
+  

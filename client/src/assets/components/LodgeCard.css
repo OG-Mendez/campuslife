@@ -1,0 +1,55 @@
+.lodge-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    text-align: left;
+    width: 100%;
+    text-decoration: none;
+    /* height: 100px; */
+  }
+  
+  .lodge-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .lodge-info-1 {
+    padding: 1rem;
+  }
+  
+  .lodge-name {
+    font-size: 1rem;
+    font-weight: bold;
+    color: #333;
+    margin: 0.5rem 0;
+  }
+  
+  .lodge-location {
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  .lodge-price {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #333;
+  }
+
+  @media (max-width: 768px) {
+    .lodge-info-1 {
+      padding: 0.5rem;
+    }
+  
+    .lodge-name {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .lodge-card {
+      max-width: 300px;
+    }
+  }
+  
