@@ -9,7 +9,7 @@ class Picture(models.Model):
     lodge_location = models.CharField(max_length=100)
     lodge_price = models.IntegerField(null=True, blank=True)
     available_vacancy = models.IntegerField(default=0)
-    caretaker_number = models.IntegerField(null=True, blank=True)
+    caretaker_number = models.CharField(max_length=11, null=True, blank=True)
 
     def __str__(self):
         return self.lodge_name
