@@ -1,13 +1,12 @@
 .filter-search-container {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 2rem;
   margin: 2.5rem 0 0 2rem;
   width: 80%;
-}
-
-.filter-container {
-  position: relative;
+  font-family: "Inter", sans-serif;
+  padding-top: 60px;
+  position: relative; 
 }
 
 .filter-button {
@@ -15,16 +14,27 @@
   align-items: center;
   background-color: #f0f0f0;
   border: 1px solid #dcdcdc;
-  border-radius: 20px;
+  border-radius: 100px;
   padding: 0.5rem 1rem;
   cursor: pointer;
   font-size: 0.9rem;
   color: #333;
+  gap: 1rem;
 }
 
 .filter-icon {
   margin-right: 0.5rem;
+  padding: 0px 0px 8px 1px;
+  width: 30px; 
+  height: 30px;
+  /* background-image: url('./filterlogo.svg');  */
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: 1px solid #B0ACAC;
+  border-radius: 50%;
 }
+
+
 .search-container {
   position: relative;
   flex: 1;
@@ -41,7 +51,7 @@
 
 .search-button {
   position: absolute;
-  right: 0.045rem;
+  right: 0.1rem;
   top: 50%;
   transform: translateY(-50%);
   background-color: orange;
@@ -57,35 +67,47 @@
   background-color: #ff9f1c;
 }
 
-.dropdown-menu {
+.search-dropdown {
   position: absolute;
-  top: calc(100% + 0.5rem);  
+  top: calc(100% + 0.5rem);
   left: 0;
   width: 100%;
   background-color: white;
   border: 1px solid #dcdcdc;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 1000; 
-  max-height: 200px;
-  overflow-y: auto;
+  z-index: 1000;
+  max-height: 150px; 
+  overflow-y: auto; 
 }
 
-.dropdown-item {
-  padding: 0.5rem 1rem;
+.search-item {
+  padding: 0.0009rem .1rem;
   cursor: pointer;
   font-size: 0.9rem;
   color: #333;
+  list-style-type: none;
 }
 
-.dropdown-item:hover {
+.search-item:hover {
   background-color: #f0f0f0;
 }
+
+.no-results {
+  padding: 0.5rem 1rem;
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+  list-style-type: none;
+}
+
+
+
 
 @media (max-width: 768px) {
   .filter-search-container {
     flex-direction: row;
-    width: 90%;
+    width: 95%;
     margin: 1rem;
   }
 
@@ -93,24 +115,10 @@
     font-size: 0.8rem;
     padding: 0.4rem 1rem;
   }
-}
 
-.search-container {
-  position: relative;
-  flex: 1;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  font-size: smaller;
-}
-
-.dropdown-menu {
-  position: absolute;
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
+  .search-input {
+    font-size: smaller;
+  }
 }
 
 @media (min-width: 1024px) {

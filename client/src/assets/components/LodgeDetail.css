@@ -2,12 +2,15 @@
   padding:0;
   margin:0;
   box-sizing: border-box;
+  font-family: "Inter", sans-serif;
 }
+
 .lodge-detail {
   display: flex;
   gap: 2rem;
   padding: 2rem;
   align-items: flex-start;
+  margin-top: 5rem;
   /* height: 120rem; */
 }
 
