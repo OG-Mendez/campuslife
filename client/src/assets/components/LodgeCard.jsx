@@ -14,7 +14,7 @@ const LodgeCard = ({ lodge }) => {
         <h3 className="lodge-name">{lodge.lodge_name}</h3>
         <p className="lodge-location">{lodge.lodge_location || 'Unknown Location'}</p>
         <p className="lodge-price">
-          {lodge.lodge_price ? `$${lodge.lodge_price} per year` : 'Price Unavailable'}
+          {lodge.lodge_price ? `₦${lodge.lodge_price} per year` : 'Price Unavailable'}
         </p>
       </div>
     </Link>

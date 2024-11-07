@@ -1,4 +1,8 @@
-.navbar {
+.navbarC {
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -6,6 +10,8 @@
     background-color: #ffffff; 
     border-bottom: 1px solid #e0e0e0; 
     height: 4rem;
+    font-family: "Inter", sans-serif;
+    width:100%;
   }
   
   .logo-container {
@@ -17,7 +23,7 @@
   .logo {
     width: 30px; 
     height: 30px;
-    background-image: url('path/to/your/logo.svg'); 
+    background-image: url('./logo.svg'); 
     background-size: contain;
     background-repeat: no-repeat;
     margin-right: 8px; 

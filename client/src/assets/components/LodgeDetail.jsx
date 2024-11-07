@@ -41,7 +41,7 @@ const LodgeDetail = () => {
         </div>
         <div className="lodge-info-item">
           <p>Price:</p>
-          <strong>{lodge.lodge_price ? `$${lodge.lodge_price}` : 'Price Unavailable'}</strong> 
+          <strong>{lodge.lodge_price ? `₦${lodge.lodge_price}` : 'Price Unavailable'}</strong> 
         </div>
         <div className="lodge-info-item-cn">
           <p>Caretaker's number:</p> 

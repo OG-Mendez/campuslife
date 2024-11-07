@@ -11,7 +11,7 @@ const FilterModal = ({ show, handleClose, applyFilters }) => {
 
   const handleApplyFilters = () => {
     applyFilters({ vacancy, location, price });
-    handleClose();
+    handleClose(); // Close the modal after applying the filters
   };
 
   return (
@@ -28,7 +28,7 @@ const FilterModal = ({ show, handleClose, applyFilters }) => {
               title={vacancy}
               onSelect={(selected) => setVacancy(selected)}
             >
-              <Dropdown.Item eventKey="Any">All</Dropdown.Item>
+              <Dropdown.Item eventKey="Any">Any</Dropdown.Item>
               <Dropdown.Item eventKey="Vacant">Vacant</Dropdown.Item>
               <Dropdown.Item eventKey="Not vacant">Not vacant</Dropdown.Item>
             </DropdownButton>
