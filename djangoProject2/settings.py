@@ -61,7 +61,8 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    "https://campuslife-xmb7.vercel.app"
+    "https://campuslife-xmb7.vercel.app",
+    "campuslifetechnologies.com.ng"
 ]
 
 ROOT_URLCONF = 'djangoProject2.urls'
