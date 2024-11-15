@@ -1,15 +1,17 @@
+// App.jsx
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './assets/components/Navbar';
 import FilterSearch from './assets/components/FilterSearch';
 import LodgesGrid from './assets/components/LodgesGrid';
 import LodgeDetail from './assets/components/LodgeDetail';
+import Footer from './assets/components/Footer';
 
 function App() {
   const [filteredLodges, setFilteredLodges] = useState([]);
 
-  const handleFilteredLodges = (lodges) => {
-    setFilteredLodges(lodges);
+  const handleApplyFilters = (lodges) => {
+    setFilteredLodges(lodges); // Set filtered lodges to pass into LodgesGrid
   };
 
   return (
@@ -21,7 +23,7 @@ function App() {
             path="/"
             element={
               <>
-                <FilterSearch onApplyFilters={handleFilteredLodges} />
+                <FilterSearch applyFilters={handleApplyFilters} />
                 <LodgesGrid filteredLodges={filteredLodges} />
               </>
             }
@@ -29,6 +31,7 @@ function App() {
           <Route path="/lodge/:id" element={<LodgeDetail />} />
         </Routes>
       </div>
+      <Footer />
     </Router>
   );
 }

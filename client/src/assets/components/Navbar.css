@@ -17,7 +17,7 @@
   .logo-container {
     display: flex;
     align-items: center;
-    padding-left: 2rem;
+    padding-left: .3rem;
   }
   
   .logo {
@@ -43,7 +43,7 @@
     }
 
     .logo-container {
-        padding-left: 2rem;
+        padding-left: .03rem;
         margin-bottom: 10px;
     }
 

@@ -1,7 +1,7 @@
 .filter-search-container {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 2.5rem;
   margin: 2.5rem 0 0 2rem;
   width: 80%;
   font-family: "Inter", sans-serif;
@@ -12,14 +12,14 @@
 .filter-button {
   display: flex;
   align-items: center;
-  background-color: #f0f0f0;
+  background-color: #FCFCFC;
   border: 1px solid #dcdcdc;
   border-radius: 100px;
-  padding: 0.5rem 1rem;
+  padding: 0.3rem 1rem;
   cursor: pointer;
   font-size: 0.9rem;
   color: #333;
-  gap: 1rem;
+  gap: .7rem;
 }
 
 .filter-icon {
@@ -108,12 +108,12 @@
   .filter-search-container {
     flex-direction: row;
     width: 95%;
-    margin: 1rem;
+    margin: .5rem;
   }
 
   .filter-button, .search-button {
     font-size: 0.8rem;
-    padding: 0.41rem 1rem;
+    padding: 0.41rem .7rem;
   }
 
   .search-input {
