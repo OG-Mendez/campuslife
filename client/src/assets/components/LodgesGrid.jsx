@@ -2,55 +2,79 @@ import React, { useEffect, useState } from 'react';
 import LodgeCard from './LodgeCard';
 import './LodgesGrid.css';
 
-const LodgesGrid = () => {
+const LodgesGrid = ({ filteredLodges }) => {
   const [lodges, setLodges] = useState([]);
-
-// const staticLodges = [
-//   {
-//     lodge_name: "Lodge 1",
-//     lodge_location: "Location 1",
-//     lodge_price: 1000,
-//     image: "/path/to/image1.jpg",
-//   },
-//   {
-//     lodge_name: "Lodge 2",
-//     lodge_location: "Location 2",
-//     lodge_price: 1200,
-//     image: "/path/to/image2.jpg",
-//   },
-
-// ];
-
-// return (
-//   <div className="lodges-grid">
-//     {staticLodges.map((lodge) => (
-//       <LodgeCard key={lodge.lodge_name} lodge={lodge} />
-//     ))}
-//   </div>
-// );
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const lodgesPerPage = 12;
 
   useEffect(() => {
-    const fetchLodges = async () => {
-      try {
-        const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
-        if (!response.ok) throw new Error('Network response was not ok');
-        
-        const data = await response.json();
-        setLodges(data);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
+    if (filteredLodges && filteredLodges.length > 0) {
+      setLodges(filteredLodges); 
+      setIsLoading(false);
+    } else {
+      const fetchLodges = async () => {
+        setIsLoading(true);
+        try {
+          const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
+          if (!response.ok) throw new Error('Network response was not ok');
+          
+          const data = await response.json();
+          setLodges(data);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchLodges();
+    }
+  }, [filteredLodges]);
 
-    fetchLodges();
-  }, []);
+  const indexOfLastLodge = currentPage * lodgesPerPage;
+  const indexOfFirstLodge = indexOfLastLodge - lodgesPerPage;
+  const currentLodges = lodges.slice(indexOfFirstLodge, indexOfLastLodge);
+
+  const handleNextPage = () => {
+    if (indexOfLastLodge < lodges.length) {
+      setCurrentPage((prevPage) => prevPage + 1);
+    }
+  };
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prevPage) => prevPage - 1);
+    }
+  };
 
   return (
     <div className="lodges-grid">
-      {lodges.map((lodge) => (
-        <LodgeCard key={lodge.id} lodge={lodge} />
-      ))}
+      {isLoading ? (
+        Array.from({ length: lodgesPerPage }).map((_, index) => (
+          <div key={index} className="lodge-card-skeleton">
+            <div className="skeleton-image skeleton"></div>
+            <div className="skeleton-text skeleton"></div>
+            <div className="skeleton-text skeleton" style={{ width: '60%' }}></div>
+          </div>
+        ))
+      ) : (
+        currentLodges.map((lodge) => (
+          <LodgeCard key={lodge.id} lodge={lodge} />
+        ))
+      )}
+
+      <div className="pagination-buttons">
+        {!isLoading && currentPage > 1 && (
+          <button onClick={handlePreviousPage} className="prev-button">
+            Previous
+          </button>
+        )}
+        {!isLoading && indexOfLastLodge < lodges.length && (
+          <button onClick={handleNextPage} className="next-button">
+            Next
+          </button>
+        )}
+      </div>
     </div>
   );
 };

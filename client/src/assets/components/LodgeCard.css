@@ -1,64 +1,69 @@
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 .lodge-card {
-    background-color: #fff;
-    border-radius: 8px;
-    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); */
-    /* overflow: hidden; */
-    text-align: left;
-    width: 100%;
-    text-decoration: none;
-    /* height: 100px; */
-    font-family: "Inter", sans-serif;
-  }
-  
-  .lodge-image {
-    width: 100%;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 10px;
-  }
-  
+  position: relative;
+  background-color: #fff;
+  border-radius: 8px;
+  text-align: left;
+  width: 100%;
+  text-decoration: none;
+  font-family: "Inter", sans-serif;
+}
+
+.lodge-image {
+  width: 100%;
+  height: 250px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.lodge-vacancy-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgb(253, 249, 249); 
+  color: #141313;
+  font-size: 0.6rem;
+  font-weight: bold;
+  padding: 5px 8px;
+  border-radius: 12px;
+  z-index: 1;
+}
+
+.lodge-info-1 {
+  padding: 0 1rem 0 0;
+}
+
+.lodge-name {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0.5rem 0 0.2rem 0;
+}
+
+.lodge-location {
+  font-size: 0.9rem;
+  color: #777;
+  font-weight: 600;
+}
+
+.lodge-price {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #333;
+  padding-top: 0;
+}
+
+@media (max-width: 768px) {
   .lodge-info-1 {
-    padding: 0 1rem 0 0;
+    padding: 0.5rem;
   }
   
   .lodge-name {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #333;
-    margin: 0.5rem 0 0.2rem 0;
-  }
-  
-  .lodge-location {
     font-size: 0.9rem;
-    color: #777;
-    font-weight: 600;
   }
+}
   
-  .lodge-price {
-    font-size: 0.9rem;
-    font-weight: 800;
-    color: #333;
-    padding-top: 0;
+@media (min-width: 1024px) {
+  .lodge-card {
+    max-width: 300px;
   }
-
-  @media (max-width: 768px) {
-    .lodge-info-1 {
-      padding: 0.5rem;
-    }
-  
-    .lodge-name {
-      font-size: 0.9rem;
-    }
-  }
-  
-  @media (min-width: 1024px) {
-    .lodge-card {
-      max-width: 300px;
-    }
-  }
-  
+}

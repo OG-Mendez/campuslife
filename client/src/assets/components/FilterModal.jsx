@@ -9,19 +9,25 @@ const FilterModal = ({ show, handleClose, applyFilters }) => {
   const [location, setLocation] = useState("Any");
   const [price, setPrice] = useState([60000, 260000]);
 
+  const resetFilters = () => {
+    setVacancy("Any");
+    setLocation("Any");
+    setPrice([60000, 260000]);
+  };
+
   const handleApplyFilters = () => {
     applyFilters({ vacancy, location, price });
-    handleClose(); // Close the modal after applying the filters
+    resetFilters(); // Reset filters after applying them
+    handleClose(); 
   };
 
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header className="c-btn" closeButton>
-        <Modal.Title> <span className="ts-1">  Search With Filter</span></Modal.Title>
+        <Modal.Title><span className="ts-1">Search With Filter</span></Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form>
-
           <Form.Group className="mb-3">
             <Form.Label>Vacancy</Form.Label>
             <DropdownButton
@@ -29,8 +35,8 @@ const FilterModal = ({ show, handleClose, applyFilters }) => {
               onSelect={(selected) => setVacancy(selected)}
             >
               <Dropdown.Item eventKey="Any">Any</Dropdown.Item>
-              <Dropdown.Item eventKey="Vacant">Vacant</Dropdown.Item>
-              <Dropdown.Item eventKey="Not vacant">Not vacant</Dropdown.Item>
+              <Dropdown.Item eventKey="Vacancy">Vacancy</Dropdown.Item>
+              <Dropdown.Item eventKey="No vacancy">No vacancy</Dropdown.Item>
             </DropdownButton>
           </Form.Group> 
           <hr />
