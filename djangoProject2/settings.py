@@ -30,7 +30,9 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['campuslife-c9je.onrender.com', '127.0.0.1']
+ALLOWED_HOSTS = ['campuslife-c9je.onrender.com', '127.0.0.1', 'https://www.campuslifetechnologies.com.ng',
+                 'https://angry-trixie-david-nenye-4c47ed6b.koyeb.app', 'campuslifetechnologies.com.ng',
+                 'https://campuslifetechnologies.com.ng']
 
 
 # Application definition
@@ -62,7 +64,10 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://campuslife-xmb7.vercel.app",
-    "https://www.campuslifetechnologies.com.ng"
+    "https://www.campuslifetechnologies.com.ng",
+    "https://angry-trixie-david-nenye-4c47ed6b.koyeb.app",
+    "campuslifetechnologies.com.ng",
+    "https://campuslifetechnologies.com.ng"
 ]
 
 ROOT_URLCONF = 'djangoProject2.urls'

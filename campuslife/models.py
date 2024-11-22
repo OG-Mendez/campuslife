@@ -7,7 +7,7 @@ class Picture(models.Model):
     lodge_name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='pictures/')
     lodge_location = models.CharField(max_length=100)
-    lodge_price = models.IntegerField(null=True, blank=True)
+    lodge_price = models.CharField(null=True, blank=True)
     available_vacancy = models.IntegerField(default=0)
     caretaker_number = models.CharField(max_length=11, null=True, blank=True)
 
