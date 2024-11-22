@@ -43,21 +43,24 @@ const LodgeDetail = () => {
           </div>
           <div className="lodge-info">
             <div className="lodge-info-item">
-              <p>Vacancy:</p>
+              <p>Vacancy</p>
               <strong>{ lodge.available_vacancy > 0 ? `${lodge.available_vacancy} rooms` : 'No Vacancy'}</strong> 
             </div>
             <div className="lodge-info-item">
-              <p>Location:</p>
+              <p>Location</p>
               <strong>{lodge.lodge_location || 'Unknown'}</strong> 
             </div>
             <div className="lodge-info-item">
-              <p>Price:</p>
+              <p>Price</p>
               <strong>{lodge.lodge_price ? `₦${lodge.lodge_price}` : 'Price Unavailable'}</strong> 
             </div>
             <div className="lodge-info-item-cn">
-              <p>Caretaker's number:</p> 
+              <p>Caretaker's number</p> 
               <strong>{lodge.caretaker_number || 'Not available'}</strong>  
             </div>
+            <p className='disclaimer'>Disclaimer : Campuslife Technologies does not collect any payments and is not responsible for any loss.
+
+Please, go to the lodge, and ensure to meet the Caretaker in person before proceeding with any payment. Thank you!</p>
           </div>
         </>
       )}

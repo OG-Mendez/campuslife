@@ -9,15 +9,15 @@ const FilterModal = ({ show, handleClose, applyFilters }) => {
   const [location, setLocation] = useState("Any");
   const [price, setPrice] = useState([60000, 260000]);
 
-  const resetFilters = () => {
-    setVacancy("Any");
-    setLocation("Any");
-    setPrice([60000, 260000]);
-  };
+  // const resetFilters = () => {
+  //   setVacancy("Any");
+  //   setLocation("Any");
+  //   setPrice([60000, 260000]);
+  // };
 
   const handleApplyFilters = () => {
     applyFilters({ vacancy, location, price });
-    resetFilters(); // Reset filters after applying them
+    // resetFilters();
     handleClose(); 
   };
 

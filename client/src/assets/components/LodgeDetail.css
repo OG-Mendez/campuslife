@@ -1,8 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
 *{
   padding:0;
   margin:0;
   box-sizing: border-box;
-  font-family: "Inter", sans-serif;
+  font-family:"Darker Grotesque", sans-serif ;
 }
 
 .lodge-detail {
@@ -67,7 +69,7 @@
   font-size: 0.85rem;
   color: #999;
   margin-bottom: 0; 
-  text-transform: uppercase;
+  /* text-transform: uppercase; */
 }
 
 .lodge-info-item strong,
@@ -76,6 +78,11 @@
   color: #333;
   font-weight: bold;
   margin: 0; 
+}
+.disclaimer{
+  color: orange;
+  font-size:1rem ;
+  font-weight: 600;
 }
 
 .skeleton {

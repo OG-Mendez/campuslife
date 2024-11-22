@@ -13,6 +13,7 @@ const FilterSearch = ({ applyFilters }) => {
   const [location, setLocation] = useState("Any");
   const [price, setPrice] = useState([60000, 260000]);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const [showNoResultsPopup, setShowNoResultsPopup] = useState(false);
   const navigate = useNavigate();
 
   const handleShow = () => setShowModal(true);
@@ -55,6 +56,10 @@ const FilterSearch = ({ applyFilters }) => {
 
       setFilteredLodges(filteredByAll);
       applyFilters(filteredByAll);
+
+      if (filteredByAll.length === 0) {
+        setShowNoResultsPopup(true);
+      }
     } catch (error) {
       console.error('Error applying filters:', error);
     } finally {
@@ -80,6 +85,8 @@ const FilterSearch = ({ applyFilters }) => {
 
     setDebounceTimeout(newTimeout);
   };
+
+  const handleClosePopup = () => setShowNoResultsPopup(false);
 
   const handleApplyFilters = ({ vacancy, location, price }) => {
     setVacancy(vacancy);
@@ -141,6 +148,17 @@ const FilterSearch = ({ applyFilters }) => {
       </form>
 
       <FilterModal show={showModal} handleClose={handleClose} applyFilters={handleApplyFilters} />
+      
+      {showNoResultsPopup && (
+        <div className="popup-container">
+          <div className="popup">
+            <p>No lodges found matching the criteria.</p>
+            <button onClick={handleClosePopup} className="popup-close-button">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

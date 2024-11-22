@@ -1,17 +1,18 @@
-// App.jsx
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Navbar from './assets/components/Navbar';
 import FilterSearch from './assets/components/FilterSearch';
 import LodgesGrid from './assets/components/LodgesGrid';
 import LodgeDetail from './assets/components/LodgeDetail';
 import Footer from './assets/components/Footer';
+import About from './assets/components/About';
+import Contact from './assets/components/Contact';
 
 function App() {
   const [filteredLodges, setFilteredLodges] = useState([]);
 
   const handleApplyFilters = (lodges) => {
-    setFilteredLodges(lodges); // Set filtered lodges to pass into LodgesGrid
+    setFilteredLodges(lodges); 
   };
 
   return (
@@ -29,9 +30,11 @@ function App() {
             }
           />
           <Route path="/lodge/:id" element={<LodgeDetail />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </div>
-      <Footer />
+      {!window.location.pathname.includes("/about") && <Footer />}
     </Router>
   );
 }

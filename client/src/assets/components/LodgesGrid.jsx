@@ -38,12 +38,14 @@ const LodgesGrid = ({ filteredLodges }) => {
   const handleNextPage = () => {
     if (indexOfLastLodge < lodges.length) {
       setCurrentPage((prevPage) => prevPage + 1);
+      window.scrollTo(0, 0);  // Scroll to the top of the page
     }
   };
 
   const handlePreviousPage = () => {
     if (currentPage > 1) {
       setCurrentPage((prevPage) => prevPage - 1);
+      window.scrollTo(0, 0);  // Scroll to the top of the page
     }
   };
 

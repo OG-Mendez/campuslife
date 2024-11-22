@@ -5,6 +5,7 @@ const Navbar = () => {
     return (
       <nav className="navbarC">
         <div className="logo-container">
+          <a href="/">
           <img
               src="./logo.svg"
               alt="Logo"
@@ -12,7 +13,9 @@ const Navbar = () => {
               height="24"
               className="d-inline-block align-text-top"
             />
+            </a>
           <h3 className="title">Campuslife</h3>
+          
         </div>
       </nav>
     );
