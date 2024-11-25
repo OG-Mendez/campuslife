@@ -79,7 +79,7 @@
     .lodges-grid {
       grid-template-columns: 1fr;
       padding: 1rem;
-      gap: 1rem;
+      gap: 2.5rem;
     }
   }
   

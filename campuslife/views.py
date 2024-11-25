@@ -44,7 +44,7 @@ def picture_detail(request, pk):
 
 @api_view(['GET'])
 def picture_list_api(request):
-    pictures = Picture.objects.all().order_by('-available_vacancy')
+    pictures = Picture.objects.all()
     serializer = PictureSerializer(pictures, many=True)
     return Response(serializer.data)
 

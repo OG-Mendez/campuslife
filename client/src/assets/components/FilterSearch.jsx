@@ -46,14 +46,32 @@ const FilterSearch = ({ applyFilters }) => {
       if (!response.ok) throw new Error('Failed to fetch lodges');
 
       const lodges = await response.json();
+      console.log("Fetched lodges from API:", lodges);
+
       const filteredByAll = lodges.filter((lodge) => {
+        const lodgePrice = parseInt(lodge.lodge_price.replace(/,/g, ''), 10); // Parse price
         const isVacant = lodge.available_vacancy > 0 ? "Vacancy" : "No vacancy";
+
         const isVacancyMatch = vacancy === "Any" || isVacant === vacancy;
         const isLocationMatch = location === "Any" || lodge.lodge_location === location;
-        const isPriceMatch = lodge.lodge_price >= price[0] && lodge.lodge_price <= price[1];
+        const isPriceMatch = lodgePrice >= price[0] && lodgePrice <= price[1];
+
+        // Debugging logs
+        console.log({
+          lodgeName: lodge.lodge_name,
+          lodgePrice,
+          lodgeVacancy: isVacant,
+          lodgeLocation: lodge.lodge_location,
+          isVacancyMatch,
+          isLocationMatch,
+          isPriceMatch,
+          included: isVacancyMatch && isLocationMatch && isPriceMatch,
+        });
+
         return isVacancyMatch && isLocationMatch && isPriceMatch;
       });
 
+      console.log("Filtered lodges:", filteredByAll);
       setFilteredLodges(filteredByAll);
       applyFilters(filteredByAll);
 
@@ -89,6 +107,7 @@ const FilterSearch = ({ applyFilters }) => {
   const handleClosePopup = () => setShowNoResultsPopup(false);
 
   const handleApplyFilters = ({ vacancy, location, price }) => {
+    console.log("Filters received from modal:", { vacancy, location, price });
     setVacancy(vacancy);
     setLocation(location);
     setPrice(price);

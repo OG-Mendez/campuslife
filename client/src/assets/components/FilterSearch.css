@@ -22,6 +22,7 @@
   font-size: 0.9rem;
   color: #333;
   gap: .7rem;
+  height: 2.2rem;
 }
 
 .filter-icon {
@@ -49,6 +50,7 @@
   border: 1px solid #dcdcdc;
   outline: none;
   font-size: 0.9rem;
+  height: 2.2rem;
 }
 
 .search-button {
@@ -151,15 +153,19 @@
     flex-direction: row;
     width: 95%;
     margin: .5rem;
+   
   }
 
-  .filter-button, .search-button {
+  .filter-button, .search-button  {
     font-size: 0.8rem;
     padding: 0.41rem .7rem;
+    /* height: 10rem, */
   }
 
   .search-input {
     font-size: smaller;
+    /* height: 10rem; */
+    
   }
 }
 
