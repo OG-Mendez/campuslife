@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Picture, Interior, Rating
+from .models import Picture
 from django.conf import settings
 
 
@@ -13,7 +13,7 @@ class PictureSerializer(serializers.ModelSerializer):
         return obj.image.url
 
 
-class InteriorSerializer(serializers.ModelSerializer):
+"""class InteriorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Interior
         fields = '__all__'
@@ -23,3 +23,4 @@ class RatingSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rating
         fields = '__all__'
+"""
