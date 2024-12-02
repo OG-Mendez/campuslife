@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import cloudinary
 import os
 import dj_database_url
 from dotenv import load_dotenv
@@ -31,7 +32,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['campuslife-c9je.onrender.com', '127.0.0.1', 'https://www.campuslifetechnologies.com.ng',
-                 'https://angry-trixie-david-nenye-4c47ed6b.koyeb.app']
+                 'https://angry-trixie-david-nenye-4c47ed6b.koyeb.app', 'https://014f-102-90-103-210.ngrok-free.app']
 
 
 # Application definition
@@ -45,7 +46,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'campuslife',
-    'corsheaders'
+    'corsheaders',
+    'cloudinary',
+    'cloudinary_storage'
 ]
 
 MIDDLEWARE = [
@@ -53,6 +56,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    #'campuslife.middleware.APIKeyMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -60,11 +64,18 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
+FRONTEND_API_KEY = os.getenv('FRONTEND_API_KEY')
+
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://campuslife-xmb7.vercel.app",
     "https://www.campuslifetechnologies.com.ng",
     "https://angry-trixie-david-nenye-4c47ed6b.koyeb.app"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://014f-102-90-103-210.ngrok-free.app'
 ]
 
 ROOT_URLCONF = 'djangoProject2.urls'
@@ -142,6 +153,22 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+
+cloudinary.config(
+    cloud_name= 'dem4ececb',
+    api_key='361993149326335',
+    api_secret=os.getenv("CLOUD_API_SECRET")
+)
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dem4ececb',
+    'API_KEY': '361993149326335',
+    'API_SECRET': os.getenv('CLOUD_API_SECRET'),
+    'USE_FILENAME': True,
+    'UNIQUE_FILENAME': False,
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
