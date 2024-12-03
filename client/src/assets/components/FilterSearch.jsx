@@ -56,7 +56,7 @@ const FilterSearch = ({ applyFilters }) => {
         const isLocationMatch = location === "Any" || lodge.lodge_location === location;
         const isPriceMatch = lodgePrice >= price[0] && lodgePrice <= price[1];
 
-        // Debugging logs
+        
         console.log({
           lodgeName: lodge.lodge_name,
           lodgePrice,
@@ -119,10 +119,10 @@ const FilterSearch = ({ applyFilters }) => {
       <button className="filter-button" onClick={handleShow}>
         <span className="filter-icon">
           <img
-            src="./filterlogo.svg"
+            src="/filterlogo.svg"
             alt=""
-            width="20"
-            height="25"
+            width="15"
+            height="18"
             className="d-inline-block align-text-top"
           />
         </span>

@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import './About.css';
 
 const About = () => {
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     return(
         <div className="about-page">
             <div className="about">
@@ -17,7 +21,7 @@ const About = () => {
                     <div className="about-card">
                     <div>
                         <a href="https://www.linkedin.com/in/michael-ezechukwu-ab5210223?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app">
-                        <img src="./src/assets/images/sheer.jpg" alt="" />
+                        <img src="/images/sheer.jpg" alt="" />
                         <h4>Michael Ezechukwu</h4>
                         <p>Co-founder & CEO</p>
                         </a>
@@ -25,7 +29,7 @@ const About = () => {
                     
                     <div>
                     <a href="https://www.linkedin.com/in/david-uchenna/">
-                        <img src="./src/assets/images/pdavid.jpeg" alt="" />
+                        <img src="/images/pdavid.jpeg" alt="" />
                         <h4>David Uchenna</h4>
                         <p>Co-founder & Backend Developer</p>
                         </a>
@@ -33,7 +37,7 @@ const About = () => {
 
                     <div>
                     <a href="http://linkedin.com/in/jeremiah-chukwuemeka-902b13276">
-                        <img src="./src/assets/images/jeremie.jpg" alt="" />
+                        <img src="/images/jeremie.jpg" alt="" />
                         <h4>Jeremiah Chukwuemeka</h4>
                         <p>Co-founder & Frontend Developer</p>
                         </a>

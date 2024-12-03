@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="footer-section">
           <div className="main-name">
             <img
-              src="./logo.svg"
+              src="/logo.svg"
               alt="Logo"
               width="30"
               height="24"
@@ -40,7 +40,7 @@ const Footer = () => {
           <div className="socials">
             <a href="https://www.linkedin.com/company/campuslife-technologies/">
               <img
-                src="./linkedinlogo.svg"
+                src="/linkedinlogo.svg"
                 alt=""
                 width="20"
                 height="25"
@@ -50,7 +50,7 @@ const Footer = () => {
 
             <a href="">
               <img
-                src="./xlogo.svg"
+                src="/xlogo.svg"
                 alt=""
                 width="20"
                 height="25"
@@ -60,7 +60,7 @@ const Footer = () => {
 
             <a href="https://www.facebook.com/profile.php?id=61568747010778&mibextid=ZbWKwL">
               <img
-                src="./facebooklogo.svg"
+                src="/facebooklogo.svg"
                 alt=""
                 width="20"
                 height="25"
@@ -71,7 +71,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="footer-bottom">
-        <p>&copy; Campuslife Technology 2024</p>
+        <p>&copy; Campuslife Technologies 2024</p>
       </div>
     </footer>
   );

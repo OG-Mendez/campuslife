@@ -17,8 +17,11 @@
 }
 
 .about{
-    padding:0rem 10rem ;
-    width: 90%;
+    /* padding:0rem 10rem ; */
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
 }
 
 .about h1{
@@ -29,7 +32,7 @@
 
 .about p{
     margin-bottom: 6rem;
-    font-size: 0.9rem;
+    font-size: 1.2rem;
 }
 
 .diff{
@@ -65,7 +68,7 @@
     font-size: 1.2rem;
 }
 .about-footer p{
-    font-size: 0.7rem;
+    font-size: 0.85rem;
 }
 .about-footer a{
     text-decoration: none;
@@ -82,7 +85,8 @@
 
     .about{
         padding:0rem 2rem ;
-        width: 90%;
+        /* width: 90%; */
+        text-align: center;
     }
 
     .about h1{
@@ -93,7 +97,7 @@
     
     .about p{
         margin-bottom: 4rem;
-        font-size: 0.8rem;
+        font-size: 1rem;
     }
 
 }

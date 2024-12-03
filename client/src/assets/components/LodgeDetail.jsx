@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation} from 'react-router-dom';
 import './LodgeDetail.css';
 
 const LodgeDetail = () => {
   const { id } = useParams(); 
+  const navigate = useNavigate();
+  const location = useLocation();
   const [lodge, setLodge] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchLodge = async () => {
+      console.log('Fetching data...');
       try {
         const response = await fetch(`https://campuslife-c9je.onrender.com/api/pictures/${id}`);
         if (!response.ok) throw new Error('Network response was not ok');
@@ -25,15 +28,19 @@ const LodgeDetail = () => {
     fetchLodge();
   }, [id]);
 
+  const handleBack = () => {
+    navigate(`/${location.search}`);
+  };
+
   return (
     <div className="lodge-detail">
       {isLoading ? (
         <div className="skeleton-content">
-          <div className="skeleton-image skeleton"></div>
-          <div className="skeleton-text skeleton" style={{ width: '50%' }}></div>
-          <div className="skeleton-text skeleton" style={{ width: '80%' }}></div>
-          <div className="skeleton-text skeleton" style={{ width: '60%' }}></div>
-          <div className="skeleton-text skeleton" style={{ width: '40%' }}></div>
+          <div className="skeleton-image1 skeleton1"></div>
+          <div className="skeleton-text1 skeleton1" style={{ width: '50%' }}></div>
+          <div className="skeleton-text1 skeleton1" style={{ width: '80%' }}></div>
+          <div className="skeleton-text1 skeleton1" style={{ width: '60%' }}></div>
+          <div className="skeleton-text1 skeleton1" style={{ width: '40%' }}></div>
         </div>
       ) : (
         <>
@@ -44,7 +51,8 @@ const LodgeDetail = () => {
           <div className="lodge-info">
             <div className="lodge-info-item">
               <p>Vacancy</p>
-              <strong>{ lodge.available_vacancy > 0 ? `${lodge.available_vacancy} rooms` : 'No Vacancy'}</strong> 
+              <strong>{lodge.available_vacancy === 1 ? '1 room' : lodge.available_vacancy > 1 ? `${lodge.available_vacancy} rooms` : 'No Vacancy'}</strong>
+
             </div>
             <div className="lodge-info-item">
               <p>Location</p>

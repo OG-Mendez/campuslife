@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Navbar from './assets/components/Navbar';
 import FilterSearch from './assets/components/FilterSearch';
 import LodgesGrid from './assets/components/LodgesGrid';
@@ -12,14 +12,7 @@ function App() {
   const [filteredLodges, setFilteredLodges] = useState([]);
 
   const handleApplyFilters = (lodges) => {
-    setFilteredLodges(lodges);
-  };
-
-  // Custom hook to check the current route
-  const FooterWrapper = () => {
-    const location = useLocation();
-    const hideFooter = location.pathname === '/about'; // Specify paths where footer should be hidden
-    return !hideFooter ? <Footer /> : null;
+    setFilteredLodges(lodges); 
   };
 
   return (
@@ -41,7 +34,7 @@ function App() {
           <Route path="/contact" element={<Contact />} />
         </Routes>
       </div>
-      <FooterWrapper />
+      <Footer />
     </Router>
   );
 }
