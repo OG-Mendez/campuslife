@@ -11,7 +11,7 @@ const FilterSearch = ({ applyFilters }) => {
   const [loading, setLoading] = useState(false);
   const [vacancy, setVacancy] = useState("Any");
   const [location, setLocation] = useState("Any");
-  const [price, setPrice] = useState([60000, 260000]);
+  const [price, setPrice] = useState([60000, 600000]);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
   const [showNoResultsPopup, setShowNoResultsPopup] = useState(false);
   const navigate = useNavigate();

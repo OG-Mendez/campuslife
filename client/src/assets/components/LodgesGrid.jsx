@@ -11,13 +11,11 @@ const LodgesGrid = ({ filteredLodges }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Extract page number from the query string
   const queryParams = new URLSearchParams(location.search);
   const initialPage = parseInt(queryParams.get('page'), 10) || 1;
 
   const [currentPage, setCurrentPage] = useState(initialPage);
 
-  // Sync `currentPage` with the query string
   useEffect(() => {
     const page = parseInt(queryParams.get('page'), 10);
     if (page && page !== currentPage) {
@@ -25,7 +23,6 @@ const LodgesGrid = ({ filteredLodges }) => {
     }
   }, [queryParams, currentPage]);
 
-  // Fetch lodges
   useEffect(() => {
     if (filteredLodges && filteredLodges.length > 0) {
       setLodges(filteredLodges);
@@ -49,12 +46,10 @@ const LodgesGrid = ({ filteredLodges }) => {
     }
   }, [filteredLodges]);
 
-  // Paginate lodges
   const indexOfLastLodge = currentPage * lodgesPerPage;
   const indexOfFirstLodge = indexOfLastLodge - lodgesPerPage;
   const currentLodges = lodges.slice(indexOfFirstLodge, indexOfLastLodge);
 
-  // Handle page changes
   const handlePageChange = (page) => {
     setCurrentPage(page);
     navigate(`?page=${page}`);

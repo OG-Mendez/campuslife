@@ -21,7 +21,7 @@ const About = () => {
                     <div className="about-card">
                     <div>
                         <a href="https://www.linkedin.com/in/michael-ezechukwu-ab5210223?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app">
-                        <img src="/images/sheer.jpg" alt="" />
+                        <img src="/images/sheer.jpg" alt="Michael" />
                         <h4>Michael Ezechukwu</h4>
                         <p>Co-founder & CEO</p>
                         </a>

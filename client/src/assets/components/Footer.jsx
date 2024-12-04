@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";  // Import Link for routing
+import { Link } from "react-router-dom"; // Import Link for routing
 import "./Footer.css";
 
 const Footer = () => {
@@ -22,7 +22,8 @@ const Footer = () => {
         <div className="footer-section">
           <ul className="footer-links">
             <li>
-              <Link to="/about">About us</Link>  {/* Use Link component for navigation */}
+              <Link to="/about">About us</Link>{" "}
+              {/* Use Link component for navigation */}
             </li>
             <li>
               <a href="/contact ">Contact us</a>
@@ -31,7 +32,12 @@ const Footer = () => {
               <a href=" ">FAQs</a>
             </li>
             <li>
-              <a href="/">Back To Top</a>
+              <a
+                href="javascript:void(0)"
+                onClick={() => window.scrollTo(0, 0)}
+              >
+                Back To Top
+              </a>
             </li>
           </ul>
         </div>

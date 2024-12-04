@@ -21,7 +21,7 @@ const LodgeCard = ({ lodge }) => {
       </div>
       <LazyLoadImage
         className="lodge-image"
-        src={`https://campuslife-c9je.onrender.com${lodge.image}`}
+        src={lodge.image}
         alt={lodge.lodge_name}
         effect="blur"
       />
