@@ -32,7 +32,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['campuslife-c9je.onrender.com', '127.0.0.1', 'https://www.campuslifetechnologies.com.ng',
-                 'https://angry-trixie-david-nenye-4c47ed6b.koyeb.app', 'https://014f-102-90-103-210.ngrok-free.app']
+                 'https://angry-trixie-david-nenye-4c47ed6b.koyeb.app', '2c8e-102-90-100-1.ngrok-free.app']
 
 
 # Application definition
@@ -75,7 +75,7 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://014f-102-90-103-210.ngrok-free.app'
+    'https://2c8e-102-90-100-1.ngrok-free.app'
 ]
 
 ROOT_URLCONF = 'djangoProject2.urls'

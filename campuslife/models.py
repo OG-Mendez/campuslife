@@ -1,17 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
+from cloudinary.models import CloudinaryField
 
 
 class Picture(models.Model):
-    image = models.CharField(max_length=500, null=True, blank=True)
+    lodge_name = models.CharField(max_length=100, default='')
+    image = CloudinaryField('image')
     lodge_location = models.CharField(max_length=100)
     lodge_price = models.CharField(null=True, blank=True)
     available_vacancy = models.IntegerField(default=0)
     caretaker_number = models.CharField(max_length=11, null=True, blank=True)
-    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions', default=1)
     is_visible = models.BooleanField(default=True)
-    lodge_name = models.CharField(max_length=100, default='')
     latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
 
