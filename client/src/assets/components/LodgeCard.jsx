@@ -10,11 +10,11 @@ const LodgeCard = ({ lodge }) => {
   // Helper function to clean the image URL
   const cleanImageUrl = (url) => {
     if (url && url.startsWith("image/upload/")) {
-      return url.replace("image/upload/", ""); // Remove the prefix
+        // Append the full Cloudinary base URL
+        return `https://res.cloudinary.com/dem4ececb/${url}`;
     }
     return url;
-  };
-
+};
   const vacancyText = lodge.available_vacancy > 0 ? 'Vacancy' : 'No Vacancy';
   const vacancyStyle = {
     color: lodge.available_vacancy > 0 ? 'green' : 'red',

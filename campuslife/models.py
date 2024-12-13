@@ -5,8 +5,9 @@ from cloudinary.models import CloudinaryField
 
 
 class Picture(models.Model):
+
     lodge_name = models.CharField(max_length=100, default='')
-    image = CloudinaryField('image')
+    image = CloudinaryField('image', folder='media/pictures')
     lodge_location = models.CharField(max_length=100)
     lodge_price = models.CharField(null=True, blank=True)
     available_vacancy = models.IntegerField(default=0)
@@ -16,14 +17,13 @@ class Picture(models.Model):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='uploaded_pictures', null=True, blank=True)
 
-
     def __str__(self):
         return self.lodge_name
 
 
 class Interior(models.Model):
     picture = models.ForeignKey(Picture, related_name='interior_images', on_delete=models.CASCADE)
-    interior_image = models.ImageField(upload_to='pictures/interior/')
+    interior_image = CloudinaryField('interior_image', folder='media/interior')
 
     def __str__(self):
         return f"Interior of {self.picture.lodge_name}"
