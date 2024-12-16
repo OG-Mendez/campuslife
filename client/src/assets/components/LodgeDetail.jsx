@@ -20,6 +20,13 @@ const LodgeDetail = () => {
         const data = await response.json();
         const selectedLodge = data.find((lodge) => lodge.id === parseInt(id)); 
         if (!selectedLodge) throw new Error('Lodge not found');
+        //I added this code to clean the url because it has refused to clean from the backend
+        if (selectedLodge?.image) {
+  const prefix = 'image/upload/';
+  if (selectedLodge.image.startsWith(prefix)) {
+    selectedLodge.image = `https://res.cloudinary.com/dem4ececb/${selectedLodge.image}`;
+  }
+    }
         setLodge(selectedLodge);
       } catch (error) {
         console.error('Error fetching lodge details:', error);

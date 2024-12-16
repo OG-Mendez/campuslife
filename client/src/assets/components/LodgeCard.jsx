@@ -5,7 +5,16 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 import './LodgeCard.css';
 
 const LodgeCard = ({ lodge }) => {
-  const location = useLocation(); 
+  const location = useLocation();
+
+  // Helper function to clean the image URL
+  const cleanImageUrl = (url) => {
+    if (url && url.startsWith("image/upload/")) {
+        // Append the full Cloudinary base URL
+        return `https://res.cloudinary.com/dem4ececb/${url}`;
+    }
+    return url;
+};
   const vacancyText = lodge.available_vacancy > 0 ? 'Vacancy' : 'No Vacancy';
   const vacancyStyle = {
     color: lodge.available_vacancy > 0 ? 'green' : 'red',
@@ -13,7 +22,7 @@ const LodgeCard = ({ lodge }) => {
 
   return (
     <Link
-      to={`/lodge/${lodge.id}${location.search}`} 
+      to={`/lodge/${lodge.id}${location.search}`}
       className="lodge-card"
     >
       <div className="lodge-vacancy-badge" style={vacancyStyle}>
@@ -21,7 +30,7 @@ const LodgeCard = ({ lodge }) => {
       </div>
       <LazyLoadImage
         className="lodge-image"
-        src={lodge.image}
+        src={cleanImageUrl(lodge.image)} // Use the cleaned URL
         alt={lodge.lodge_name}
         effect="blur"
       />
