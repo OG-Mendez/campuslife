@@ -11,8 +11,9 @@ const FilterSearch = ({ applyFilters }) => {
   const [loading, setLoading] = useState(false);
   const [vacancy, setVacancy] = useState("Any");
   const [location, setLocation] = useState("Any");
-  const [price, setPrice] = useState([60000, 260000]);
+  const [price, setPrice] = useState([60000, 600000]);
   const [debounceTimeout, setDebounceTimeout] = useState(null);
+  const [showNoResultsPopup, setShowNoResultsPopup] = useState(false);
   const navigate = useNavigate();
 
   const handleShow = () => setShowModal(true);
@@ -45,16 +46,38 @@ const FilterSearch = ({ applyFilters }) => {
       if (!response.ok) throw new Error('Failed to fetch lodges');
 
       const lodges = await response.json();
+      console.log("Fetched lodges from API:", lodges);
+
       const filteredByAll = lodges.filter((lodge) => {
+        const lodgePrice = parseInt(lodge.lodge_price.replace(/,/g, ''), 10); // Parse price
         const isVacant = lodge.available_vacancy > 0 ? "Vacancy" : "No vacancy";
+
         const isVacancyMatch = vacancy === "Any" || isVacant === vacancy;
         const isLocationMatch = location === "Any" || lodge.lodge_location === location;
-        const isPriceMatch = lodge.lodge_price >= price[0] && lodge.lodge_price <= price[1];
+        const isPriceMatch = lodgePrice >= price[0] && lodgePrice <= price[1];
+
+        
+        console.log({
+          lodgeName: lodge.lodge_name,
+          lodgePrice,
+          lodgeVacancy: isVacant,
+          lodgeLocation: lodge.lodge_location,
+          isVacancyMatch,
+          isLocationMatch,
+          isPriceMatch,
+          included: isVacancyMatch && isLocationMatch && isPriceMatch,
+        });
+
         return isVacancyMatch && isLocationMatch && isPriceMatch;
       });
 
+      console.log("Filtered lodges:", filteredByAll);
       setFilteredLodges(filteredByAll);
       applyFilters(filteredByAll);
+
+      if (filteredByAll.length === 0) {
+        setShowNoResultsPopup(true);
+      }
     } catch (error) {
       console.error('Error applying filters:', error);
     } finally {
@@ -81,7 +104,10 @@ const FilterSearch = ({ applyFilters }) => {
     setDebounceTimeout(newTimeout);
   };
 
+  const handleClosePopup = () => setShowNoResultsPopup(false);
+
   const handleApplyFilters = ({ vacancy, location, price }) => {
+    console.log("Filters received from modal:", { vacancy, location, price });
     setVacancy(vacancy);
     setLocation(location);
     setPrice(price);
@@ -93,10 +119,10 @@ const FilterSearch = ({ applyFilters }) => {
       <button className="filter-button" onClick={handleShow}>
         <span className="filter-icon">
           <img
-            src="./filterlogo.svg"
+            src="/filterlogo.svg"
             alt=""
-            width="20"
-            height="25"
+            width="15"
+            height="18"
             className="d-inline-block align-text-top"
           />
         </span>
@@ -141,6 +167,17 @@ const FilterSearch = ({ applyFilters }) => {
       </form>
 
       <FilterModal show={showModal} handleClose={handleClose} applyFilters={handleApplyFilters} />
+      
+      {showNoResultsPopup && (
+        <div className="popup-container">
+          <div className="popup">
+            <p>No lodges found matching the criteria.</p>
+            <button onClick={handleClosePopup} className="popup-close-button">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

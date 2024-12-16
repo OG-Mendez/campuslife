@@ -7,17 +7,17 @@ import './FilterModal.css';
 const FilterModal = ({ show, handleClose, applyFilters }) => {
   const [vacancy, setVacancy] = useState("Any");
   const [location, setLocation] = useState("Any");
-  const [price, setPrice] = useState([60000, 260000]);
+  const [price, setPrice] = useState([60000, 600000]);
 
-  const resetFilters = () => {
-    setVacancy("Any");
-    setLocation("Any");
-    setPrice([60000, 260000]);
-  };
+  // const resetFilters = () => {
+  //   setVacancy("Any");
+  //   setLocation("Any");
+  //   setPrice([60000, 260000]);
+  // };
 
   const handleApplyFilters = () => {
     applyFilters({ vacancy, location, price });
-    resetFilters(); // Reset filters after applying them
+    // resetFilters();
     handleClose(); 
   };
 
@@ -61,7 +61,7 @@ const FilterModal = ({ show, handleClose, applyFilters }) => {
               <Slider
                 range
                 min={60000}
-                max={260000}
+                max={600000}
                 value={price}
                 onChange={(newPrice) => setPrice(newPrice)}
                 className="mx-3"
