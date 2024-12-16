@@ -71,7 +71,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "https://campuslife-xmb7.vercel.app",
     "https://www.campuslifetechnologies.com.ng",
-    "https://angry-trixie-david-nenye-4c47ed6b.koyeb.app"
+    "https://angry-trixie-david-nenye-4c47ed6b.koyeb.app",
+    "campuslifetechnologies.com.ng",
+    "https://campuslifetechnologies.com.ng"
 ]
 
 CSRF_TRUSTED_ORIGINS = [
