@@ -80,7 +80,7 @@ def login_view(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def picture_list_api(request):
-    pictures = Picture.objects.all()
+    pictures = Picture.objects.all().order_by('-id')
     serializer = PictureSerializer(pictures, many=True)
     return Response(serializer.data)
 

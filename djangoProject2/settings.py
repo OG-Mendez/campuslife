@@ -73,6 +73,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.campuslifetechnologies.com.ng",
     "https://angry-trixie-david-nenye-4c47ed6b.koyeb.app",
     'https://campuslife-xmb7-david-uchennas-projects.vercel.app'
+
 ]
 
 CSRF_TRUSTED_ORIGINS = [
