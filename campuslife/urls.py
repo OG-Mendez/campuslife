@@ -14,7 +14,7 @@ urlpatterns += [
     path('api/signup/', views.signup_view_api, name='signup_view_api'),
     path('api/login/', views.login_view_api, name='login_view_api'),
     path('api/ratings/', views.ratings, name='rating_api'),
-    path('api/interior/', views.interior_view_api, name='interior_api'),
+    path('api/create_rating/', views.create_rating, name='create_rating_api')
 ]
 
 
