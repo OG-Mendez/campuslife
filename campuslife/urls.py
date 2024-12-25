@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from drf_spectacular.views import SpectacularSwaggerView, SpectacularAPIView
+
 
 urlpatterns = [
     path('home', views.picture_list, name='picture_list'),
@@ -14,7 +16,11 @@ urlpatterns += [
     path('api/signup/', views.signup_view_api, name='signup_view_api'),
     path('api/login/', views.login_view_api, name='login_view_api'),
     path('api/ratings/', views.ratings, name='rating_api'),
-    path('api/create_rating/', views.create_rating, name='create_rating_api')
+    path('api/create_rating/', views.create_rating, name='create_rating_api'),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/password-reset/', views.password_reset_request, name='password_reset_request'),
+    path('api/password-reset-confirm/', views.password_reset_confirm, name='password_reset_confirm'),
 ]
 
 

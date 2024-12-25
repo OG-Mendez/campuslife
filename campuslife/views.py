@@ -1,17 +1,17 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from .models import Picture, Interior, Rating
-from .serializers import PictureSerializer, InteriorSerializer, RatingSerializer
+from .models import Picture, Interior, Rating, Question, Answer, Reply
+from .serializers import PictureSerializer, InteriorSerializer, RatingSerializer, QuestionSerializer, AnswerSerializer, ReplySerializer
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate, login
 from rest_framework.authtoken.models import Token
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from rest_framework.authentication import TokenAuthentication
-
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMessage
+from django.contrib.auth.tokens import default_token_generator
 
 # Create your views here.
 
@@ -23,7 +23,7 @@ def picture_list(request):
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
 
-    pictures = Picture.objects.all()
+    pictures = Picture.objects.all().order_by('-id')
 
     if min_price and max_price:
         pictures = pictures.filter(lodge_price__gte=min_price, lodge_price__lte=max_price)
@@ -95,6 +95,7 @@ def picture_detail_api(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@csrf_exempt
 def signup_view_api(request):
     username = request.data.get('username')
     password = request.data.get('password')
@@ -120,12 +121,53 @@ def login_view_api(request):
         token, _ = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
     else:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Invalid credentials David'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_request(request):
+    email = request.data.get('email')
+    if User.objects.filter(email=email).exists():
+        user = User.objects.get(email=email)
+        token = default_token_generator.make_token(user)
+
+        reset_url = f"http://campuslifetechnologies.com.ng/reset-password/{user.id}/{token}"
+
+        email = EmailMessage(
+            subject='Password Reset Request',
+            body=f'Please click the link to reset your password: {reset_url}\tIgnore this mail if you did not initiate this process',
+            from_email='info@campuslifetechnologies.com.ng',
+            to=[email],
+            headers={'Content-Type': 'text/plain'},
+        )
+        email.send()
+
+        return Response({'message': 'Password reset link sent to your email.'})
+    return Response({'message': 'Email not found.'}, status=404)
+
+
+@api_view(['POST'])
+def password_reset_confirm(request):
+    user_id = request.data.get('user_id')
+    token = request.data.get('token')
+    new_password = request.data.get('new_password')
+
+    try:
+        user = User.objects.get(id=user_id)
+        if default_token_generator.check_token(user, token):
+            user.set_password(new_password)
+            user.save()
+            return Response({'message': 'Password reset successful.'})
+        return Response({'message': 'Invalid token.'}, status=400)
+    except User.DoesNotExist:
+        return Response({'message': 'User not found.'}, status=404)
 
 
 @api_view(['GET'])
 def interior_view_api(request):
-    interiors = Interior.objects.filter()
+    interiors = Interior.objects.all()
     serializer = InteriorSerializer(interiors, many=True)
     return Response(serializer.data)
 
@@ -182,13 +224,6 @@ def create_rating(request):
     if not lodge_name or not rating or not review:
         return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    try:
-        # Validate the rating
-        rating = int(rating)
-        if rating < 1 or rating > 5:
-            return Response({'error': 'Rating must be between 1 and 5'}, status=status.HTTP_400_BAD_REQUEST)
-    except ValueError:
-        return Response({'error': 'Rating must be an integer'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
         # Fetch the lodge
@@ -218,3 +253,79 @@ def create_rating(request):
         return Response({'error': 'Lodge not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_question(request):
+    content = request.data.get('content')
+    if not content:
+        return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    question = Question.objects.create(asked_by=request.user, content=content)
+    serializer = QuestionSerializer(question)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_questions(request):
+    questions = Question.objects.all().order_by('-vote_count', '-created_at')
+    serializer = QuestionSerializer(questions, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_answer(request, question_id):
+    content = request.data.get('content')
+    if not content:
+        return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        question = Question.objects.get(id=question_id)
+        answer = Answer.objects.create(answered_by=request.user, question=question, content=content)
+        serializer = AnswerSerializer(answer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Question.DoesNotExist:
+        return Response({'error': 'Question not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_answers(request, question_id):
+    try:
+        question = Question.objects.get(id=question_id)
+        answers = Answer.objects.filter(question=question).order_by('-vote_count', '-created_at')
+        serializer = AnswerSerializer(answers, many=True)
+        return Response(serializer.data)
+    except Question.DoesNotExist:
+        return Response({'error': 'Question not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_reply(request, answer_id):
+    content = request.data.get('content')
+    if not content:
+        return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        answer = Answer.objects.get(id=answer_id)
+        reply = Reply.objects.create(replied_by=request.user, answer=answer, content=content)
+        serializer = ReplySerializer(reply)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Answer.DoesNotExist:
+        return Response({'error': 'Answer not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_replies(request, answer_id):
+    try:
+        answer = Answer.objects.get(id=answer_id)
+        replies = Reply.objects.filter(answer=answer).order_by('-created_at')
+        serializer = ReplySerializer(replies, many=True)
+        return Response(serializer.data)
+    except Answer.DoesNotExist:
+        return Response({'error': 'Answer not found'}, status=status.HTTP_404_NOT_FOUND)

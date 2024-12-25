@@ -33,9 +33,36 @@ class Rating(models.Model):
     rated_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ratings', default=1)
     picture_rating = models.ForeignKey(Picture, related_name='picture_ratings', on_delete=models.CASCADE)
     rating = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(5)])
-    review = models.CharField(max_length=500, null=True, blank=True)
+    review = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.rated_by.username} - {self.picture_rating.lodge_name} ({self.rating}/5)"
+
+
+class Question(models.Model):
+    asked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions', default=1)
+    question = models.TextField(null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    upvote_question = models.ManyToManyField(User, related_name='upvoted_question', blank=True)
+    downvote_question = models.ManyToManyField(User, related_name='downvoted_question', blank=True)
+    notification = models.ManyToManyField(User, related_name='notification')
+
+
+class Answer(models.Model):
+    answered_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='answers', default=1)
+    question_replied = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
+    content = models.TextField(null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    upvote_answer = models.ManyToManyField(User, related_name='upvoted_answer', blank=True)
+    downvote_answer = models.ManyToManyField(User, related_name='downvoted_answer', blank=True)
+
+
+class Reply(models.Model):
+    replied_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='replies')
+    answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='replies')
+    content = models.TextField(null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    likes = models.ManyToManyField(User, related_name='liked_replies', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='disliked_replies', blank=True)
 
