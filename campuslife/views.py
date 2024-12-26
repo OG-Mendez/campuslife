@@ -113,9 +113,9 @@ def signup_view_api(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view_api(request):
-    username = request.data.get('username')
+    email = request.data.get('email')
     password = request.data.get('password')
-    user = authenticate(username=username, password=password)
+    user = authenticate(username=email, password=password)
 
     if user is not None:
         token, _ = Token.objects.get_or_create(user=user)
@@ -133,7 +133,7 @@ def password_reset_request(request):
         user = User.objects.get(email=email)
         token = default_token_generator.make_token(user)
 
-        reset_url = f"http://campuslifetechnologies.com.ng/reset-password/{user.id}/{token}"
+        reset_url = f"https://campuslifetechnologies.com.ng/reset-password/{user.id}/{token}"
 
         email = EmailMessage(
             subject='Password Reset Request',
@@ -175,11 +175,9 @@ def interior_view_api(request):
 @api_view(['GET'])
 def ratings(request):
     if request.method == 'GET':
-        # Check if a specific lodge_name is provided
         lodge_name = request.query_params.get('lodge_name')
 
         if lodge_name:
-            # Fetch ratings for the specific lodge
             try:
                 picture = Picture.objects.get(lodge_name=lodge_name)
                 ratings = Rating.objects.filter(picture_rating=picture)
@@ -189,7 +187,9 @@ def ratings(request):
                         'rated_by': rating.rated_by.username,
                         'rating': rating.rating,
                         'review': rating.review,
-                        'lodge_name': picture.lodge_name
+                        'lodge_name': picture.lodge_name,
+                        'total_likes': rating.total_likes(),
+                        'total_dislikes': rating.total_dislikes()
                     }
                     for rating in ratings
                 ]
@@ -220,10 +220,11 @@ def create_rating(request):
     lodge_name = request.data.get('lodge_name')
     rating = request.data.get('rating')
     review = request.data.get('review')
+    likes = request.data.get('likes')
+    dislikes = request.data.get('dislikes')
 
     if not lodge_name or not rating or not review:
         return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
-
 
     try:
         # Fetch the lodge

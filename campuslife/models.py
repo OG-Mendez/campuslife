@@ -34,11 +34,18 @@ class Rating(models.Model):
     picture_rating = models.ForeignKey(Picture, related_name='picture_ratings', on_delete=models.CASCADE)
     rating = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(5)])
     review = models.TextField(null=True, blank=True)
+    likes = models.ManyToManyField(User, related_name='liked_reviews', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='disliked_reviews', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.rated_by.username} - {self.picture_rating.lodge_name} ({self.rating}/5)"
 
+    def total_likes(self):
+        return self.likes.count()
+
+    def total_dislikes(self):
+        return self.dislikes.count()
 
 class Question(models.Model):
     asked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions', default=1)
