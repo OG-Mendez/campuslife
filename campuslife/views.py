@@ -104,6 +104,9 @@ def signup_view_api(request):
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already taken'}, status=status.HTTP_400_BAD_REQUEST)
 
+    if User.objects.filter(email=email).exists():
+        return Response({'error': 'Email already taken'}, status=status.HTTP_400_BAD_REQUEST)
+
     user = User.objects.create_user(username=username, password=password, email=email)
     user.save()
     token, _ = Token.objects.get_or_create(user=user)
@@ -113,9 +116,9 @@ def signup_view_api(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view_api(request):
-    email = request.data.get('email')
+    username = request.data.get('username')
     password = request.data.get('password')
-    user = authenticate(email=email, password=password)
+    user = authenticate(username=username, password=password)
 
     if user is not None:
         token, _ = Token.objects.get_or_create(user=user)
@@ -128,8 +131,9 @@ def login_view_api(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request(request):
+    username = request.data.get('username')
     email = request.data.get('email')
-    if User.objects.filter(email=email).exists():
+    if User.objects.filter(email=email, username=username).exists():
         user = User.objects.get(email=email)
         token = default_token_generator.make_token(user)
 
@@ -185,7 +189,6 @@ def ratings(request):
                 data = [
                     {
                         'rated_by': rating.rated_by.username,
-                        'rating': rating.rating,
                         'review': rating.review,
                         'lodge_name': picture.lodge_name,
                         'total_likes': rating.total_likes(),
@@ -227,14 +230,12 @@ def create_rating(request):
         return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Fetch the lodge
         picture = Picture.objects.get(lodge_name=lodge_name)
 
         # Prevent duplicate ratings
         if Rating.objects.filter(rated_by=request.user, picture_rating=picture).exists():
             return Response({'error': 'You have already rated this lodge'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create the new rating
         rating_instance = Rating.objects.create(
             rated_by=request.user,
             picture_rating=picture,
