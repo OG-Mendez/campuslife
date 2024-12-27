@@ -63,9 +63,9 @@ def signup_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        email = request.POST['email']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, email=email, password=password)
 
         if user is not None:
             login(request, user)
@@ -115,13 +115,13 @@ def signup_view_api(request):
 def login_view_api(request):
     email = request.data.get('email')
     password = request.data.get('password')
-    user = authenticate(username=email, password=password)
+    user = authenticate(email=email, password=password)
 
     if user is not None:
         token, _ = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
     else:
-        return Response({'error': 'Invalid credentials David'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Invalid credentials, please check to make sure the email and/or password is correct'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @csrf_exempt
@@ -215,7 +215,7 @@ def ratings(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def create_rating(request):
     lodge_name = request.data.get('lodge_name')
     rating = request.data.get('rating')
