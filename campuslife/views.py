@@ -211,7 +211,9 @@ def ratings(request):
                 data[lodge_name].append({
                     'rated_by': rating.rated_by.username,
                     'rating': rating.rating,
-                    'review': rating.review
+                    'review': rating.review,
+                    'total_likes': rating.total_likes(),
+                    'total_dislikes': rating.total_dislikes()
                 })
 
             return Response(data, status=status.HTTP_200_OK)
