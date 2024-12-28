@@ -297,8 +297,7 @@ def create_review(request):
         review = Review.objects.create(
             rating=rating,
             review=review_text,
-            created_by=request.user,
-            lodge_name=lodge.lodge_name
+            created_by=request.user
         )
 
         return Response({
