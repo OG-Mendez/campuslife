@@ -17,6 +17,8 @@ urlpatterns += [
     path('api/login/', views.login_view_api, name='login_view_api'),
     path('api/ratings/', views.ratings, name='rating_api'),
     path('api/create_rating/', views.create_rating, name='create_rating_api'),
+    path('api/create_review/', views.create_review, name='create_review_api'),
+    path('api/reviews/', views.list_reviews, name='list_reviews_api'),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/password-reset/', views.password_reset_request, name='password_reset_request'),

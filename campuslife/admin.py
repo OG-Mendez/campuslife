@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Picture, Interior, Rating
+from .models import Picture, Interior, Rating, Review
 
 
 class PictureModelAdmin(admin.ModelAdmin):
@@ -9,3 +9,4 @@ class PictureModelAdmin(admin.ModelAdmin):
 admin.site.register(Picture, PictureModelAdmin)
 admin.site.register(Interior)
 admin.site.register(Rating)
+admin.site.register(Review)

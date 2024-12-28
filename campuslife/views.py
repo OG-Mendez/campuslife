@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from .models import Picture, Interior, Rating, Question, Answer, Reply
-from .serializers import PictureSerializer, InteriorSerializer, RatingSerializer, QuestionSerializer, AnswerSerializer, ReplySerializer
+from .models import Picture, Interior, Rating, Review, Question, Answer, Reply
+from .serializers import PictureSerializer, InteriorSerializer, RatingSerializer, QuestionSerializer, AnswerSerializer, \
+    ReplySerializer, ReviewSerializer
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -12,6 +13,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
+
 
 # Create your views here.
 
@@ -124,10 +126,11 @@ def login_view_api(request):
         token, _ = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
     else:
-        return Response({'error': 'Invalid credentials, please check to make sure the email and/or password is correct'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Invalid credentials, please check to make sure the email and/or password is correct'},
+            status=status.HTTP_400_BAD_REQUEST)
 
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request(request):
@@ -209,6 +212,7 @@ def ratings(request):
                 if lodge_name not in data:
                     data[lodge_name] = []
                 data[lodge_name].append({
+                    'review_id': rating.review.id,
                     'rated_by': rating.rated_by.username,
                     'rating': rating.rating,
                     'review': rating.review,
@@ -224,11 +228,8 @@ def ratings(request):
 def create_rating(request):
     lodge_name = request.data.get('lodge_name')
     rating = request.data.get('rating')
-    review = request.data.get('review')
-    likes = request.data.get('likes')
-    dislikes = request.data.get('dislikes')
 
-    if not lodge_name or not rating or not review:
+    if not lodge_name or not rating:
         return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
@@ -242,14 +243,12 @@ def create_rating(request):
             rated_by=request.user,
             picture_rating=picture,
             rating=rating,
-            review=review
         )
         return Response({
-            'message': 'Rating and review added successfully!',
+            'message': 'Rating added successfully!',
             'rating': {
                 'lodge_name': lodge_name,
                 'rating': rating_instance.rating,
-                'review': rating_instance.review,
                 'rated_by': rating_instance.rated_by.username,
             }
         }, status=status.HTTP_201_CREATED)
@@ -257,6 +256,131 @@ def create_rating(request):
         return Response({'error': 'Lodge not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])  # Only allow authenticated users
+def create_review(request):
+    try:
+        # Extract data from request
+        lodge_id = request.data.get("id")
+        rating_value = request.data.get("rating")
+        review_text = request.data.get("review_text")
+
+        # Validate inputs
+        if not lodge_id or not rating_value or not review_text:
+            return Response({"error": "Lodge ID, rating, and review text are required."}, status=400)
+
+        # Check if the lodge exists
+        try:
+            lodge = Picture.objects.get(id=lodge_id)
+        except Picture.DoesNotExist:
+            return Response({"error": "Lodge not found."}, status=404)
+
+        # Check if the user has already rated this lodge
+        rating, created = Rating.objects.get_or_create(
+            rated_by=request.user,
+            picture_rating=lodge,
+            defaults={"rating": rating_value}
+        )
+
+        if not created and rating.rating != rating_value:
+            # Update the existing rating if the user changes their rating
+            rating.rating = rating_value
+            rating.save()
+
+        # Ensure a user doesn't duplicate reviews for the same rating
+        if Review.objects.filter(rating=rating, created_by=request.user).exists():
+            return Response({"error": "You have already reviewed this rating."}, status=400)
+
+        # Create the review
+        review = Review.objects.create(
+            rating=rating,
+            review=review_text,
+            created_by=request.user,
+        )
+
+        return Response({
+            "message": "Review created successfully",
+            "review_id": review.id,
+            "lodge_id": lodge.id,
+            "lodge_name": lodge.lodge_name,
+            "rating": rating.rating,
+            "review_text": review.review,
+            "created_by": request.user.username,
+        }, status=201)
+
+    except Exception as e:
+        return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=500)
+
+
+@api_view(['GET'])
+def list_reviews(request):
+    if request.method == "GET":
+        try:
+            reviews = Review.objects.all()
+
+            serializer = ReviewSerializer(reviews, many=True)
+
+            return Response(serializer.data, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+    return Response({"error": "Invalid request method"}, status=405)
+
+
+"""@api_view(['POST'])
+def like_dislike_review(request, review_id, action):
+    if request.method == "POST":
+        review = get_object_or_404(Review, id=review_id)
+        try:
+            if action == "like":
+                review.likes.add(request.user)
+                review.dislikes.remove(request.user)  # Remove dislike if it exists
+                message = "Review liked successfully"
+            elif action == "dislike":
+                review.dislikes.add(request.user)
+                review.likes.remove(request.user)  # Remove like if it exists
+                message = "Review disliked successfully"
+            else:
+                return Response({"error": "Invalid action"}, status=400)
+
+            return Response({"message": message}, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+    return Response({"error": "Invalid request method"}, status=405)
+"""
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_dislike_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    action = request.data.get('action')
+    if not review_id or not action:
+        return Response({'error': 'Review ID and action are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if action not in ['like', 'dislike']:
+        return Response({'error': 'Invalid action. Use "like" or "dislike".'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        if action == 'like':
+            if request.user in review.dislikes.all():
+                review.dislikes.remove(request.user)
+            review.likes.add(request.user)
+        elif action == 'dislike':
+            if request.user in review.likes.all():
+                review.likes.remove(request.user)
+            review.dislikes.add(request.user)
+
+        return Response({
+            'message': f'Review {action}d successfully!',
+            'review_id': review.id,
+            'total_likes': review.likes.count(),
+            'total_dislikes': review.dislikes.count()
+        }, status=status.HTTP_200_OK)
+
+    except Rating.DoesNotExist:
+        return Response({'error': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])
