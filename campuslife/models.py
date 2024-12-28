@@ -35,6 +35,9 @@ class Rating(models.Model):
     rating = models.IntegerField(default=0, validators=[MinValueValidator(1), MaxValueValidator(5)])
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('rated_by', 'picture_rating')
+
     def __str__(self):
         return f"{self.rated_by.username} - {self.picture_rating.lodge_name} ({self.rating}/5)"
 

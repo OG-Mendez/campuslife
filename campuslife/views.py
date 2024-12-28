@@ -298,6 +298,7 @@ def create_review(request):
             rating=rating,
             review=review_text,
             created_by=request.user,
+            lodge_name=lodge.lodge_name
         )
 
         return Response({

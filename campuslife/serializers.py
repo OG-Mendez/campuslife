@@ -25,22 +25,23 @@ class ReviewSerializer(serializers.ModelSerializer):
     created_by = serializers.SerializerMethodField()
     total_likes = serializers.SerializerMethodField()
     total_dislikes = serializers.SerializerMethodField()
+    lodge_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = ['id', 'review', 'created_at', 'rating', 'created_by', 'total_likes', 'total_dislikes']
+        fields = ['id','lodge_name', 'review', 'created_at', 'rating', 'created_by', 'total_likes', 'total_dislikes']
 
     def get_created_by(self, obj):
-        # Return the username of the user who created the review
         return obj.created_by.username if obj.created_by else None
 
     def get_total_likes(self, obj):
-        # Count the likes associated with this review
         return obj.likes.count()
 
     def get_total_dislikes(self, obj):
-        # Count the dislikes associated with this review
         return obj.dislikes.count()
+
+    def get_lodge_name(self, obj):
+        return obj.rating.picture_rating.lodge_name if obj.rating and obj.rating.picture_rating else None
 
 
 class QuestionSerializer(serializers.ModelSerializer):
