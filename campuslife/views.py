@@ -203,7 +203,6 @@ def ratings(request):
             except Picture.DoesNotExist:
                 return Response({'error': 'Lodge not found'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            # Fetch ratings for all lodges
             ratings = Rating.objects.select_related('picture_rating').all()
 
             data = {}
@@ -259,25 +258,21 @@ def create_rating(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Only allow authenticated users
+@permission_classes([IsAuthenticated])
 def create_review(request):
     try:
-        # Extract data from request
         lodge_id = request.data.get("id")
         rating_value = request.data.get("rating")
         review_text = request.data.get("review_text")
 
-        # Validate inputs
         if not lodge_id or not rating_value or not review_text:
             return Response({"error": "Lodge ID, rating, and review text are required."}, status=400)
 
-        # Check if the lodge exists
         try:
             lodge = Picture.objects.get(id=lodge_id)
         except Picture.DoesNotExist:
             return Response({"error": "Lodge not found."}, status=404)
 
-        # Check if the user has already rated this lodge
         rating, created = Rating.objects.get_or_create(
             rated_by=request.user,
             picture_rating=lodge,
@@ -285,15 +280,12 @@ def create_review(request):
         )
 
         if not created and rating.rating != rating_value:
-            # Update the existing rating if the user changes their rating
             rating.rating = rating_value
             rating.save()
 
-        # Ensure a user doesn't duplicate reviews for the same rating
         if Review.objects.filter(rating=rating, created_by=request.user).exists():
             return Response({"error": "You have already reviewed this rating."}, status=400)
 
-        # Create the review
         review = Review.objects.create(
             rating=rating,
             review=review_text,
@@ -326,29 +318,6 @@ def list_reviews(request):
         except Exception as e:
             return Response({"error": str(e)}, status=400)
     return Response({"error": "Invalid request method"}, status=405)
-
-
-"""@api_view(['POST'])
-def like_dislike_review(request, review_id, action):
-    if request.method == "POST":
-        review = get_object_or_404(Review, id=review_id)
-        try:
-            if action == "like":
-                review.likes.add(request.user)
-                review.dislikes.remove(request.user)  # Remove dislike if it exists
-                message = "Review liked successfully"
-            elif action == "dislike":
-                review.dislikes.add(request.user)
-                review.likes.remove(request.user)  # Remove like if it exists
-                message = "Review disliked successfully"
-            else:
-                return Response({"error": "Invalid action"}, status=400)
-
-            return Response({"message": message}, status=200)
-        except Exception as e:
-            return Response({"error": str(e)}, status=400)
-    return Response({"error": "Invalid request method"}, status=405)
-"""
 
 
 @api_view(['POST'])

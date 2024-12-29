@@ -26,10 +26,11 @@ class ReviewSerializer(serializers.ModelSerializer):
     total_likes = serializers.SerializerMethodField()
     total_dislikes = serializers.SerializerMethodField()
     lodge_name = serializers.SerializerMethodField()
+    lodge_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = ['id','lodge_name', 'review', 'created_at', 'rating', 'created_by', 'total_likes', 'total_dislikes']
+        fields = ['id', 'lodge_name', 'lodge_id', 'review', 'created_at', 'rating', 'created_by', 'total_likes', 'total_dislikes']
 
     def get_created_by(self, obj):
         return obj.created_by.username if obj.created_by else None
@@ -42,6 +43,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def get_lodge_name(self, obj):
         return obj.rating.picture_rating.lodge_name if obj.rating and obj.rating.picture_rating else None
+
+    def get_lodge_id(self, obj):
+        return obj.rating.picture_rating.id if obj.rating and obj.rating.picture_rating else None
 
 
 class QuestionSerializer(serializers.ModelSerializer):
