@@ -322,7 +322,8 @@ def list_reviews(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def like_dislike_review(request, review_id):
+def like_dislike_review(request):
+    review_id = request.data.get('id')
     review = get_object_or_404(Review, id=review_id)
     action = request.data.get('action')
     if not review_id or not action:
