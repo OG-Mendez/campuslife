@@ -137,7 +137,7 @@ def password_reset_request(request):
     username = request.data.get('username')
     email = request.data.get('email')
     if User.objects.filter(email=email, username=username).exists():
-        user = User.objects.get(email=email)
+        user = User.objects.get(username=username)
         token = default_token_generator.make_token(user)
 
         reset_url = f"https://campuslifetechnologies.com.ng/reset-password/{user.id}/{token}"
