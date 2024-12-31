@@ -1,16 +1,19 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from .models import Picture, Interior, Rating
-from .serializers import PictureSerializer, InteriorSerializer, RatingSerializer
+from .models import Picture, Interior, Rating, Review, Question, Answer, Reply
+from .serializers import PictureSerializer, InteriorSerializer, RatingSerializer, QuestionSerializer, AnswerSerializer, \
+    ReplySerializer, ReviewSerializer
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate, login
 from rest_framework.authtoken.models import Token
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from rest_framework.authentication import TokenAuthentication
+from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import EmailMessage
+from django.contrib.auth.tokens import default_token_generator
+from django.db.models import Avg
 
 
 # Create your views here.
@@ -23,7 +26,7 @@ def picture_list(request):
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
 
-    pictures = Picture.objects.all()
+    pictures = Picture.objects.all().order_by('-id')
 
     if min_price and max_price:
         pictures = pictures.filter(lodge_price__gte=min_price, lodge_price__lte=max_price)
@@ -63,9 +66,9 @@ def signup_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
+        email = request.POST['email']
         password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
+        user = authenticate(request, email=email, password=password)
 
         if user is not None:
             login(request, user)
@@ -95,6 +98,7 @@ def picture_detail_api(request, pk):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@csrf_exempt
 def signup_view_api(request):
     username = request.data.get('username')
     password = request.data.get('password')
@@ -102,6 +106,9 @@ def signup_view_api(request):
 
     if User.objects.filter(username=username).exists():
         return Response({'error': 'Username already taken'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if User.objects.filter(email=email).exists():
+        return Response({'error': 'Email already taken'}, status=status.HTTP_400_BAD_REQUEST)
 
     user = User.objects.create_user(username=username, password=password, email=email)
     user.save()
@@ -120,12 +127,58 @@ def login_view_api(request):
         token, _ = Token.objects.get_or_create(user=user)
         return Response({'token': token.key}, status=status.HTTP_200_OK)
     else:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {'error': 'Invalid credentials, please check to make sure the email and/or password is correct'},
+            status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def password_reset_request(request):
+    username = request.data.get('username')
+    email = request.data.get('email')
+    if User.objects.filter(email=email, username=username).exists():
+        user = User.objects.get(username=username)
+        token = default_token_generator.make_token(user)
+
+        reset_url = f"https://campuslifetechnologies.com.ng/reset-password/{user.id}/{token}"
+
+        email = EmailMessage(
+            subject='Password Reset Request',
+            body=f'You are receiving this email because we received a request to change the password for your '
+                 f'Campuslife account.\n\nClick the link to reset password: {reset_url}\n\nIf you did not initiate this '
+                 f'request, please contact us immediately at info@campuslifetechnologies.com.ng\n\nThank '
+                 f'you\nCampuslife Technologies',
+            from_email='info@campuslifetechnologies.com.ng',
+            to=[email],
+            headers={'Content-Type': 'text/plain'},
+        )
+        email.send()
+
+        return Response({'message': 'Password reset link sent to your email.'})
+    return Response({'message': 'Email not found.'}, status=404)
+
+
+@api_view(['POST'])
+def password_reset_confirm(request):
+    user_id = request.data.get('user_id')
+    token = request.data.get('token')
+    new_password = request.data.get('new_password')
+
+    try:
+        user = User.objects.get(id=user_id)
+        if default_token_generator.check_token(user, token):
+            user.set_password(new_password)
+            user.save()
+            return Response({'message': 'Password reset successful.'})
+        return Response({'message': 'Invalid token.'}, status=400)
+    except User.DoesNotExist:
+        return Response({'message': 'User not found.'}, status=404)
 
 
 @api_view(['GET'])
 def interior_view_api(request):
-    interiors = Interior.objects.filter()
+    interiors = Interior.objects.all()
     serializer = InteriorSerializer(interiors, many=True)
     return Response(serializer.data)
 
@@ -133,11 +186,9 @@ def interior_view_api(request):
 @api_view(['GET'])
 def ratings(request):
     if request.method == 'GET':
-        # Check if a specific lodge_name is provided
         lodge_name = request.query_params.get('lodge_name')
 
         if lodge_name:
-            # Fetch ratings for the specific lodge
             try:
                 picture = Picture.objects.get(lodge_name=lodge_name)
                 ratings = Rating.objects.filter(picture_rating=picture)
@@ -145,9 +196,10 @@ def ratings(request):
                 data = [
                     {
                         'rated_by': rating.rated_by.username,
-                        'rating': rating.rating,
                         'review': rating.review,
-                        'lodge_name': picture.lodge_name
+                        'lodge_name': picture.lodge_name,
+                        'total_likes': rating.total_likes(),
+                        'total_dislikes': rating.total_dislikes()
                     }
                     for rating in ratings
                 ]
@@ -155,7 +207,6 @@ def ratings(request):
             except Picture.DoesNotExist:
                 return Response({'error': 'Lodge not found'}, status=status.HTTP_404_NOT_FOUND)
         else:
-            # Fetch ratings for all lodges
             ratings = Rating.objects.select_related('picture_rating').all()
 
             data = {}
@@ -164,53 +215,43 @@ def ratings(request):
                 if lodge_name not in data:
                     data[lodge_name] = []
                 data[lodge_name].append({
+                    'review_id': rating.review.id,
                     'rated_by': rating.rated_by.username,
                     'rating': rating.rating,
-                    'review': rating.review
+                    'review': rating.review,
+                    'total_likes': rating.total_likes(),
+                    'total_dislikes': rating.total_dislikes()
                 })
 
             return Response(data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def create_rating(request):
     lodge_name = request.data.get('lodge_name')
     rating = request.data.get('rating')
-    review = request.data.get('review')
 
-    if not lodge_name or not rating or not review:
+    if not lodge_name or not rating:
         return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        # Validate the rating
-        rating = int(rating)
-        if rating < 1 or rating > 5:
-            return Response({'error': 'Rating must be between 1 and 5'}, status=status.HTTP_400_BAD_REQUEST)
-    except ValueError:
-        return Response({'error': 'Rating must be an integer'}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        # Fetch the lodge
         picture = Picture.objects.get(lodge_name=lodge_name)
 
         # Prevent duplicate ratings
         if Rating.objects.filter(rated_by=request.user, picture_rating=picture).exists():
             return Response({'error': 'You have already rated this lodge'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create the new rating
         rating_instance = Rating.objects.create(
             rated_by=request.user,
             picture_rating=picture,
             rating=rating,
-            review=review
         )
         return Response({
-            'message': 'Rating and review added successfully!',
+            'message': 'Rating added successfully!',
             'rating': {
                 'lodge_name': lodge_name,
                 'rating': rating_instance.rating,
-                'review': rating_instance.review,
                 'rated_by': rating_instance.rated_by.username,
             }
         }, status=status.HTTP_201_CREATED)
@@ -218,3 +259,200 @@ def create_rating(request):
         return Response({'error': 'Lodge not found'}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({'error': f'An error occurred: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_review(request):
+    try:
+        lodge_id = request.data.get("id")
+        rating_value = request.data.get("rating")
+        review_text = request.data.get("review_text")
+
+        if not lodge_id or not rating_value or not review_text:
+            return Response({"error": "Lodge ID, rating, and review text are required."}, status=400)
+
+        try:
+            lodge = Picture.objects.get(id=lodge_id)
+        except Picture.DoesNotExist:
+            return Response({"error": "Lodge not found."}, status=404)
+
+        rating, created = Rating.objects.get_or_create(
+            rated_by=request.user,
+            picture_rating=lodge,
+            defaults={"rating": rating_value}
+        )
+
+        if not created and rating.rating != rating_value:
+            rating.rating = rating_value
+            rating.save()
+
+        if Review.objects.filter(rating=rating, created_by=request.user).exists():
+            return Response({"error": "You have already reviewed this rating."}, status=400)
+
+        review = Review.objects.create(
+            rating=rating,
+            review=review_text,
+            created_by=request.user
+        )
+
+        return Response({
+            "message": "Review created successfully",
+            "review_id": review.id,
+            "lodge_id": lodge.id,
+            "lodge_name": lodge.lodge_name,
+            "rating": rating.rating,
+            "review_text": review.review,
+            "created_by": request.user.username,
+        }, status=201)
+
+    except Exception as e:
+        return Response({"error": f"An unexpected error occurred: {str(e)}"}, status=500)
+
+
+@api_view(['GET'])
+def list_reviews(request):
+    if request.method == "GET":
+        try:
+            reviews = Review.objects.all()
+
+            serializer = ReviewSerializer(reviews, many=True)
+
+            return Response(serializer.data, status=200)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+    return Response({"error": "Invalid request method"}, status=405)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def average_rating_for_lodge(request):
+    lodge_id = request.query_params.get("id")
+
+    if not lodge_id:
+        return Response({'error': 'Lodge ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        average = Rating.objects.filter(picture_rating_id=lodge_id).aggregate(
+            average_rating=Avg('rating')
+        )['average_rating']
+
+        picture = Picture.objects.get(id=lodge_id)
+        lodge_name = picture.lodge_name
+
+        return Response({
+            'lodge_id': lodge_id,
+            'lodge_name': lodge_name,
+            'average_rating': round(average, 1) if average else None
+        }, status=status.HTTP_200_OK)
+    except Picture.DoesNotExist:
+        return Response({'error': 'Lodge not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_dislike_review(request):
+    review_id = request.data.get('id')
+    review = get_object_or_404(Review, id=review_id)
+    action = request.data.get('action')
+    if not review_id or not action:
+        return Response({'error': 'Review ID and action are required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if action not in ['like', 'dislike']:
+        return Response({'error': 'Invalid action. Use "like" or "dislike".'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        if action == 'like':
+            if request.user in review.dislikes.all():
+                review.dislikes.remove(request.user)
+            review.likes.add(request.user)
+        elif action == 'dislike':
+            if request.user in review.likes.all():
+                review.likes.remove(request.user)
+            review.dislikes.add(request.user)
+
+        return Response({
+            'message': f'Review {action}d successfully!',
+            'review_id': review.id,
+            'total_likes': review.likes.count(),
+            'total_dislikes': review.dislikes.count()
+        }, status=status.HTTP_200_OK)
+
+    except Rating.DoesNotExist:
+        return Response({'error': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_question(request):
+    content = request.data.get('content')
+    if not content:
+        return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    question = Question.objects.create(asked_by=request.user, content=content)
+    serializer = QuestionSerializer(question)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_questions(request):
+    questions = Question.objects.all().order_by('-vote_count', '-created_at')
+    serializer = QuestionSerializer(questions, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_answer(request, question_id):
+    content = request.data.get('content')
+    if not content:
+        return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        question = Question.objects.get(id=question_id)
+        answer = Answer.objects.create(answered_by=request.user, question=question, content=content)
+        serializer = AnswerSerializer(answer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Question.DoesNotExist:
+        return Response({'error': 'Question not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_answers(request, question_id):
+    try:
+        question = Question.objects.get(id=question_id)
+        answers = Answer.objects.filter(question=question).order_by('-vote_count', '-created_at')
+        serializer = AnswerSerializer(answers, many=True)
+        return Response(serializer.data)
+    except Question.DoesNotExist:
+        return Response({'error': 'Question not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_reply(request, answer_id):
+    content = request.data.get('content')
+    if not content:
+        return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        answer = Answer.objects.get(id=answer_id)
+        reply = Reply.objects.create(replied_by=request.user, answer=answer, content=content)
+        serializer = ReplySerializer(reply)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    except Answer.DoesNotExist:
+        return Response({'error': 'Answer not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def list_replies(request, answer_id):
+    try:
+        answer = Answer.objects.get(id=answer_id)
+        replies = Reply.objects.filter(answer=answer).order_by('-created_at')
+        serializer = ReplySerializer(replies, many=True)
+        return Response(serializer.data)
+    except Answer.DoesNotExist:
+        return Response({'error': 'Answer not found'}, status=status.HTTP_404_NOT_FOUND)
