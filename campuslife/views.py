@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
+from django.db import models
 
 
 # Create your views here.
@@ -144,7 +145,10 @@ def password_reset_request(request):
 
         email = EmailMessage(
             subject='Password Reset Request',
-            body=f'Please click the link to reset your password: {reset_url}\tIgnore this mail if you did not initiate this process',
+            body=f'You are receiving this email because we received a request to change the password for your '
+                 f'Campuslife account.\n\nClick the link to reset password: {reset_url}\n\nIf you did not initiate this '
+                 f'request, please contact us immediately at info@campuslifetechnologies.com.ng\n\nThank '
+                 f'you\nCampuslife Technologies',
             from_email='info@campuslifetechnologies.com.ng',
             to=[email],
             headers={'Content-Type': 'text/plain'},
@@ -318,6 +322,38 @@ def list_reviews(request):
         except Exception as e:
             return Response({"error": str(e)}, status=400)
     return Response({"error": "Invalid request method"}, status=405)
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework import status
+from django.db.models import Avg
+from .models import Picture, Rating
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def average_rating_for_lodge(request):
+    lodge_id = request.query_params.get("id")
+
+    if not lodge_id:
+        return Response({'error': 'Lodge ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        average = Rating.objects.filter(picture_rating_id=lodge_id).aggregate(
+            average_rating=Avg('rating')
+        )['average_rating']
+
+        picture = Picture.objects.get(id=lodge_id)
+        lodge_name = picture.lodge_name
+
+        return Response({
+            'lodge_id': lodge_id,
+            'lodge_name': lodge_name,
+            'average_rating': round(average, 1) if average else None
+        }, status=status.HTTP_200_OK)
+    except Picture.DoesNotExist:
+        return Response({'error': 'Lodge not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['POST'])

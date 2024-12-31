@@ -24,6 +24,7 @@ urlpatterns += [
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/password-reset/', views.password_reset_request, name='password_reset_request'),
     path('api/password-reset-confirm/', views.password_reset_confirm, name='password_reset_confirm'),
+    path('api/average_rating/', views.average_rating_for_lodge, name="average_rating")
 ]
 
 
