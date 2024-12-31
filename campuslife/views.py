@@ -13,7 +13,7 @@ from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
-from django.db import models
+from django.db.models import Avg
 
 
 # Create your views here.
@@ -322,13 +322,6 @@ def list_reviews(request):
         except Exception as e:
             return Response({"error": str(e)}, status=400)
     return Response({"error": "Invalid request method"}, status=405)
-
-
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.response import Response
-from rest_framework import status
-from django.db.models import Avg
-from .models import Picture, Rating
 
 
 @api_view(['GET'])
