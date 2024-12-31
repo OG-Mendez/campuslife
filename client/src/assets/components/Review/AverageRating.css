@@ -1,0 +1,19 @@
+.average-rating {
+    display: flex;
+    align-items: center;
+    font-size: 1.2rem;
+    border: 1px solid #a9a9a9;
+    width: 15rem;
+    padding-left: 3.5rem;
+  }
+  
+  .average-rating span {
+    margin-left: 8px;
+    font-weight: bold;
+  }
+
+  .A-rating{
+    font-size: 4rem;
+    padding-left: 0.4rem;
+  }
+  

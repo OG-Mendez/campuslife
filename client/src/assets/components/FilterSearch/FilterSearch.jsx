@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FilterModal from './FilterModal';
+import FilterModal from '../FilterModal/FilterModal';
 import './FilterSearch.css';
 
 const FilterSearch = ({ applyFilters }) => {
@@ -49,14 +49,15 @@ const FilterSearch = ({ applyFilters }) => {
       console.log("Fetched lodges from API:", lodges);
 
       const filteredByAll = lodges.filter((lodge) => {
-        const lodgePrice = parseInt(lodge.lodge_price.replace(/,/g, ''), 10); // Parse price
+        const lodgePrice = lodge.lodge_price 
+          ? parseInt(lodge.lodge_price.replace(/,/g, ''), 10) 
+          : 0; // Default to 0 if lodge_price is null or undefined
         const isVacant = lodge.available_vacancy > 0 ? "Vacancy" : "No vacancy";
-
+      
         const isVacancyMatch = vacancy === "Any" || isVacant === vacancy;
         const isLocationMatch = location === "Any" || lodge.lodge_location === location;
         const isPriceMatch = lodgePrice >= price[0] && lodgePrice <= price[1];
-
-        
+      
         console.log({
           lodgeName: lodge.lodge_name,
           lodgePrice,
@@ -67,9 +68,10 @@ const FilterSearch = ({ applyFilters }) => {
           isPriceMatch,
           included: isVacancyMatch && isLocationMatch && isPriceMatch,
         });
-
+      
         return isVacancyMatch && isLocationMatch && isPriceMatch;
       });
+      
 
       console.log("Filtered lodges:", filteredByAll);
       setFilteredLodges(filteredByAll);
@@ -178,7 +180,11 @@ const FilterSearch = ({ applyFilters }) => {
           </div>
         </div>
       )}
+      {/* <div>
+          <button > Map</button>
+        </div> */}
     </div>
+    
   );
 };
 

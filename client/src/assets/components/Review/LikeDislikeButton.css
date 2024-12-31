@@ -1,0 +1,61 @@
+@import url('https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+*{
+  padding:0;
+  margin:0;
+  box-sizing: border-box;
+  font-family:"Darker Grotesque", sans-serif ;
+}
+
+.review-container {
+    padding: 20px;
+    /* font-family: Arial, sans-serif; */
+  }
+  
+  .review-card {
+    /* border: 1px solid #ccc; */
+    /* border-radius: 5px; */
+    padding: 5px;
+    margin-bottom: 2px;
+  }
+   .review-card h2{
+    font-size: 1.2rem;
+    font-weight: 700;
+   }
+
+   .review-card p{
+    font-size: 1.1rem;
+    font-weight: 400;
+   }
+  
+  .review-actions {
+    display: flex;
+    gap: 10px;
+    /* margin-top: 5px; */
+  }
+  
+  .review-button {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background:none;
+    border: none;
+    /* border-radius: 5px; */
+    padding: 2px 2px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .review-button:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* Change the color of the icon when it is liked or disliked */
+  .liked-icon {
+    color: orange; /* Orange color for liked icon */
+  }
+  
+  .disliked-icon {
+    color: orange; /* Orange color for disliked icon */
+  }
+  

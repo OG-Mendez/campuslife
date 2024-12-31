@@ -36,6 +36,21 @@
     color: #f57c00; 
     margin: 0;
   }
+
+  .signIn{
+    /* display: flex; */
+align-items: center;
+background-color: #FCFCFC;
+border: 1px solid #f57c00;
+border-radius: 100px;
+padding: 0 .5rem;
+cursor: pointer;
+font-size: 0.9rem;
+color: #f57c00;
+gap: .7rem;
+height: 1.5rem;
+
+  }
   
 
   @media (max-width: 768px) {
@@ -52,6 +67,8 @@
     .title {
         font-size: 1.5em;
     }
+
+    
 }
  
   

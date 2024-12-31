@@ -1,0 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+*{
+  padding:0;
+  margin:0;
+  box-sizing: border-box;
+  font-family:"Darker Grotesque", sans-serif ;
+}
+
+.container4 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f4f4f4;
+  }
+  
+  /* Form container */
+  .form-container4 {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  /* Header styling */
+  .form-container4 h1 {
+    text-align: center;
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  /* Input fields styling */
+  .form-container4 input {
+    width: 100%;
+    padding: 12px 16px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .form-container4 input:focus {
+    border-color: #f89e44;
+    outline: none;
+  }
+  
+  /* Button styling */
+  .button4 {
+    width: 100%;
+    padding: 12px;
+    background-color: #f89e44;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button4:hover {
+    background-color: #f89e44;
+  }
+  
+  .button4:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* Success and error messages */
+  .error {
+    color: #f44336;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .success {
+    color: #4caf50;
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  
+  /* Media query for responsive design */
+  @media (max-width: 480px) {
+    .form-container4 {
+      padding: 20px;
+    }
+  
+    .form-container4 h1 {
+      font-size: 24px;
+    }
+  
+    /* input, button {
+      font-size: 14px;
+    } */
+  }
+  
