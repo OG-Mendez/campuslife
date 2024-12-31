@@ -1,4 +1,4 @@
-import react from "react";
+import React from "react";
 import './Contact.css'
 
 const Contact = () => {
@@ -60,7 +60,7 @@ const Contact = () => {
             />
             <p>Campuslife Technologies</p>
         </div>
-
+        {/* <Link to="/Auth" style={{ textDecoration: 'none', color: 'orange' }}>Log in</Link> */}
         </div>
 
     );

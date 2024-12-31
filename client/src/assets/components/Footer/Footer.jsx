@@ -8,6 +8,7 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-section">
           <div className="main-name">
+          <a href="/">
             <img
               src="/logo.svg"
               alt="Logo"
@@ -15,6 +16,7 @@ const Footer = () => {
               height="24"
               className="d-inline-block align-text-top"
             />
+            </a>
             <h4 className="title1">Campuslife Technologies</h4>
           </div>
         </div>
@@ -26,7 +28,8 @@ const Footer = () => {
               {/* Use Link component for navigation */}
             </li>
             <li>
-              <a href="/contact ">Contact us</a>
+            <Link to="/contact">Contact us</Link>{" "}
+              {/* <a href="/contact ">Contact us</a> */}
             </li>
             <li>
               <a href=" ">FAQs</a>

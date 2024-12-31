@@ -30,6 +30,10 @@
   margin-top:1rem;
 }
 
+/* .dropdown-btn{
+  background-color: #ffa500;
+} */
+
 .close-button {
   background: transparent;
   border: none;
@@ -61,6 +65,34 @@
   padding-left: 5rem;
 }
 
+.w-100{
+  display: flex;
+  /* width: 50%; */
+  margin: 0px 50px;
+  
+}
+
+.price-input-container {
+  display: flex;
+  gap: 10rem;
+  /* width: 70%; */
+  align-items: center;
+  justify-content: space-between;
+  /* background-color: red; */
+  margin: 0px 30px;
+}
+
+.price-input2 {
+  display: flex;
+  width:80px;
+  height: 28px;
+  font-size: 0.9rem;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-left: 10rem;
+}
+
 
 @media (max-width: 768px) {
   .modal-content {
@@ -80,4 +112,14 @@
   color: white;
   cursor: pointer;
   border-radius: 0.5rem;
+}
+
+.price-input3{
+  width: 20px;
+  height: 36px;
+  font-size: 0.8rem;
+}
+
+.price-input-container {
+  gap: 0.9rem;
 }

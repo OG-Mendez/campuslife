@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import LodgeCard from './LodgeCard';
+import LodgeCard from '../Lodge Card/LodgeCard';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './LodgesGrid.css';
 
