@@ -240,14 +240,14 @@ def ratings(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_rating(request):
-    lodge_name = request.data.get('lodge_name')
+    lodge_id = request.data.get('id')
     rating = request.data.get('rating')
 
-    if not lodge_name or not rating:
+    if not lodge_id or not rating:
         return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        picture = Picture.objects.get(lodge_name=lodge_name)
+        picture = Picture.objects.get(id=lodge_id)
 
         if Rating.objects.filter(rated_by=request.user, picture_rating=picture).exists():
             return Response({'error': 'You have already rated this lodge'}, status=status.HTTP_400_BAD_REQUEST)
@@ -257,6 +257,7 @@ def create_rating(request):
             picture_rating=picture,
             rating=rating,
         )
+        lodge_name = picture.lodge_name
         return Response({
             'message': 'Rating added successfully!',
             'rating': {
