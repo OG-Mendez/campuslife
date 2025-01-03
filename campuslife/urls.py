@@ -15,6 +15,7 @@ urlpatterns += [
     path('api/pictures/<int:pk>/', views.picture_detail_api, name='picture_detail_api'),
     path('api/signup/', views.signup_view_api, name='signup_view_api'),
     path('api/login/', views.login_view_api, name='login_view_api'),
+    path('api/logout/', views.logout_view_api, name='logout'),
     path('api/ratings/', views.ratings, name='rating_api'),
     path('api/create_rating/', views.create_rating, name='create_rating_api'),
     path('api/create_review/', views.create_review, name='create_review_api'),

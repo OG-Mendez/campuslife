@@ -133,6 +133,17 @@ def login_view_api(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view_api(request):
+    try:
+        token = Token.objects.get(user=request.user)
+        token.delete()
+        return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+    except Token.DoesNotExist:
+        return Response({"error": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request(request):
     username = request.data.get('username')
@@ -238,7 +249,6 @@ def create_rating(request):
     try:
         picture = Picture.objects.get(lodge_name=lodge_name)
 
-        # Prevent duplicate ratings
         if Rating.objects.filter(rated_by=request.user, picture_rating=picture).exists():
             return Response({'error': 'You have already rated this lodge'}, status=status.HTTP_400_BAD_REQUEST)
 
