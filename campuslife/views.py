@@ -14,10 +14,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
+from fuzzywuzzy import fuzz
 
 
 # Create your views here.
-
 
 def picture_list(request):
     available_vacancy = request.GET.get('available_vacancy')
@@ -397,12 +397,29 @@ def like_dislike_review(request):
 @permission_classes([IsAuthenticated])
 def create_question(request):
     content = request.data.get('content')
+    similarity_threshold = 85
+
     if not content:
         return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
 
+    existing_questions = Question.objects.values_list('content', flat=True)
+
+    similar_questions = []
+    for question in existing_questions:
+        similarity = fuzz.ratio(content.lower(), question.lower())
+        if similarity >= similarity_threshold:
+            similar_questions.append({'question': question, 'similarity': similarity})
+
+    similar_questions.sort(key=lambda x: x['similarity'], reverse=True)
+
     question = Question.objects.create(asked_by=request.user, content=content)
     serializer = QuestionSerializer(question)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    response_data = {
+        'question': serializer.data,
+        'suggested_similar_questions': similar_questions[:3] if similar_questions else []
+    }
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
