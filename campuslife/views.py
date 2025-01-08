@@ -14,10 +14,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
+from fuzzywuzzy import fuzz
 
 
 # Create your views here.
-
 
 def picture_list(request):
     available_vacancy = request.GET.get('available_vacancy')
@@ -133,6 +133,17 @@ def login_view_api(request):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout_view_api(request):
+    try:
+        token = Token.objects.get(user=request.user)
+        token.delete()
+        return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+    except Token.DoesNotExist:
+        return Response({"error": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def password_reset_request(request):
     username = request.data.get('username')
@@ -229,16 +240,15 @@ def ratings(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def create_rating(request):
-    lodge_name = request.data.get('lodge_name')
+    lodge_id = request.data.get('id')
     rating = request.data.get('rating')
 
-    if not lodge_name or not rating:
+    if not lodge_id or not rating:
         return Response({'error': 'All fields are required'}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        picture = Picture.objects.get(lodge_name=lodge_name)
+        picture = Picture.objects.get(id=lodge_id)
 
-        # Prevent duplicate ratings
         if Rating.objects.filter(rated_by=request.user, picture_rating=picture).exists():
             return Response({'error': 'You have already rated this lodge'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -247,6 +257,7 @@ def create_rating(request):
             picture_rating=picture,
             rating=rating,
         )
+        lodge_name = picture.lodge_name
         return Response({
             'message': 'Rating added successfully!',
             'rating': {
@@ -386,12 +397,29 @@ def like_dislike_review(request):
 @permission_classes([IsAuthenticated])
 def create_question(request):
     content = request.data.get('content')
+    similarity_threshold = 85
+
     if not content:
         return Response({'error': 'Content is required'}, status=status.HTTP_400_BAD_REQUEST)
 
+    existing_questions = Question.objects.values_list('content', flat=True)
+
+    similar_questions = []
+    for question in existing_questions:
+        similarity = fuzz.ratio(content.lower(), question.lower())
+        if similarity >= similarity_threshold:
+            similar_questions.append({'question': question, 'similarity': similarity})
+
+    similar_questions.sort(key=lambda x: x['similarity'], reverse=True)
+
     question = Question.objects.create(asked_by=request.user, content=content)
     serializer = QuestionSerializer(question)
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    response_data = {
+        'question': serializer.data,
+        'suggested_similar_questions': similar_questions[:3] if similar_questions else []
+    }
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
