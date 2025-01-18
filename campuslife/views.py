@@ -48,6 +48,12 @@ def picture_detail(request, pk):
     return render(request, 'campuslife/picture_detail.html', {'picture': picture})
 
 
+def display_accounts(request):
+    users = User.objects.all()
+    user_count = User.objects.count() - 8  # Subtract founder accounts more efficiently
+    return render(request, 'campuslife/get_accounts.html', {'users': users, 'user_count': user_count})
+
+
 def signup_view(request):
     if request.method == 'POST':
         username = request.POST['username']

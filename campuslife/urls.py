@@ -7,7 +7,8 @@ urlpatterns = [
     path('home', views.picture_list, name='picture_list'),
     path('home/<int:pk>/', views.picture_detail, name='picture_detail'),
     path('signup', views.signup_view, name='signup'),
-    path('login', views.login_view, name='login')
+    path('login', views.login_view, name='login'),
+    path('analytics', views.display_accounts, name='analytics')
 ]
 
 urlpatterns += [
