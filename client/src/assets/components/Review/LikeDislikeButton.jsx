@@ -34,70 +34,69 @@ const GetSection = () => {
   }, [lodgeId]);
 
   const handleLikeDislike = async (reviewId, index, action) => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('You must be logged in to like or dislike a review.');
-      return;
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('You must be logged in to like or dislike a review.');
+    return;
+  }
+
+  try {
+    const response = await fetch('https://campuslife-c9je.onrender.com/api/like_review/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${token}`,
+      },
+      body: JSON.stringify({ id: reviewId, action }), // Send the action
+    });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Error response:', errorData);
+      throw new Error('Failed to update review.');
     }
 
-    // Determine the current state of like/dislike for the user
-    const currentReview = reviews[index];
-    const currentLikeStatus = currentReview.user_like_status; // Assuming this is stored in the review data
-    const currentDislikeStatus = currentReview.user_dislike_status; // Assuming this is stored in the review data
+    // Update frontend state based on the action
+    const updatedReviews = [...reviews];
+    const currentReview = updatedReviews[index];
 
-    let updatedAction = action;
     if (action === 'like') {
-      if (currentLikeStatus) {
-        updatedAction = 'none'; // User already liked, so remove the like
-      } else if (currentDislikeStatus) {
-        updatedAction = 'dislike'; // User disliked, so toggle to like
+      if (currentReview.user_like_status) {
+        // User already liked, remove like
+        currentReview.total_likes = Math.max(0, currentReview.total_likes - 1);
+        currentReview.user_like_status = false;
+      } else {
+        // Add like, and if disliked previously, remove dislike
+        currentReview.total_likes += 1;
+        if (currentReview.user_dislike_status) {
+          currentReview.total_dislikes = Math.max(0, currentReview.total_dislikes - 1);
+          currentReview.user_dislike_status = false;
+        }
+        currentReview.user_like_status = true;
       }
     } else if (action === 'dislike') {
-      if (currentDislikeStatus) {
-        updatedAction = 'none'; // User already disliked, so remove the dislike
-      } else if (currentLikeStatus) {
-        updatedAction = 'like'; // User liked, so toggle to dislike
-      }
-    }
-
-    try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/like_review/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Token ${token}`,
-        },
-        body: JSON.stringify({ id: reviewId, action: updatedAction }), // Update to use `id`
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Error response:', errorData);
-        throw new Error('Failed to update review.');
-      }
-
-      const updatedReviews = [...reviews];
-      if (updatedAction === 'like') {
-        updatedReviews[index].total_likes += 1;
-        updatedReviews[index].total_dislikes = Math.max(0, updatedReviews[index].total_dislikes - 1); // Remove dislike if toggled
-      } else if (updatedAction === 'dislike') {
-        updatedReviews[index].total_dislikes += 1;
-        updatedReviews[index].total_likes = Math.max(0, updatedReviews[index].total_likes - 1); // Remove like if toggled
+      if (currentReview.user_dislike_status) {
+        // User already disliked, remove dislike
+        currentReview.total_dislikes = Math.max(0, currentReview.total_dislikes - 1);
+        currentReview.user_dislike_status = false;
       } else {
-        // If action is 'none', remove like or dislike
-        if (currentLikeStatus) updatedReviews[index].total_likes = Math.max(0, updatedReviews[index].total_likes - 1);
-        if (currentDislikeStatus) updatedReviews[index].total_dislikes = Math.max(0, updatedReviews[index].total_dislikes - 1);
+        // Add dislike, and if liked previously, remove like
+        currentReview.total_dislikes += 1;
+        if (currentReview.user_like_status) {
+          currentReview.total_likes = Math.max(0, currentReview.total_likes - 1);
+          currentReview.user_like_status = false;
+        }
+        currentReview.user_dislike_status = true;
       }
-
-      updatedReviews[index].user_like_status = updatedAction === 'like'; // Track the user's action (like/dislike)
-      updatedReviews[index].user_dislike_status = updatedAction === 'dislike'; // Track the user's action (dislike)
-
-      setReviews(updatedReviews);
-    } catch (error) {
-      console.error(`Error updating review (${action}):`, error);
-      alert(error.message || 'An error occurred. Please try again.');
     }
-  };
+
+    setReviews(updatedReviews);
+  } catch (error) {
+    console.error(`Error updating review (${action}):`, error);
+    alert(error.message || 'An error occurred. Please try again.');
+  }
+};
+
 
   if (loading) {
     return <div>Loading reviews...</div>;
