@@ -21,7 +21,7 @@ const Login = () => {
     setIsSubmitting(true);
     setError('');
     setSuccess('');
-
+  
     try {
       const response = await fetch('https://campuslife-c9je.onrender.com/api/login/', {
         method: 'POST',
@@ -30,22 +30,30 @@ const Login = () => {
         },
         body: JSON.stringify({ username: formData.username, password: formData.password }),
       });
-
-      const data = await response.json();
-      if (response.ok) {
-        setSuccess('Login successful!');
-        localStorage.setItem('token', data.token);
-        setUser({ username: formData.username });
-        navigate('/');
-      } else {
-        setError(data.detail || 'Login failed. Please try again.');
+  
+      if (!response.ok) {
+        const data = await response.json();
+        if (data.detail === 'Invalid username or password') {
+          setError('Username or password is incorrect.');
+        } else {
+          setError(data.detail || 'Invalid username or password. Please try again.');
+        }
+        return;
       }
+  
+      // If login is successful
+      const data = await response.json();
+      setSuccess('Login successful!');
+      localStorage.setItem('token', data.token);
+      setUser({ username: formData.username });
+      navigate('/');
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setError('Poor connection, try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <div className="container4">

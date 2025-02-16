@@ -5,10 +5,12 @@ import './AverageRating.css'
 const AverageRating = ({ lodgeId }) => {
   const [rating, setRating] = useState(null);
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const fetchRating = async () => {
       try {
-        const response = await fetch(`https://campuslife-c9je.onrender.com/api/average_rating/?id=${lodgeId}`);
+        const response = await fetch(`${API_BASE_URL}/average_rating/?id=${lodgeId}`);
         const data = await response.json();
         setRating(data.average_rating);
       } catch (error) {
