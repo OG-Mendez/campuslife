@@ -77,6 +77,8 @@
     color: #f44336;
     font-size: 14px;
     text-align: center;
+    margin-top: 0;
+    
   }
   
   .success {

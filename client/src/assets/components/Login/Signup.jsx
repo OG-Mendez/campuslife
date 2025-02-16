@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 
 const Signup = () => {
@@ -9,13 +9,19 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
   });
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({
+    username: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate hook
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: '' }); // Clear error when user types
   };
 
   const isValidUsername = (username) => /^[a-zA-Z]{4,}[0-9]*$/.test(username);
@@ -30,7 +36,7 @@ const Signup = () => {
   const handleSubmit = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
-    setError('');
+    setErrors({ username: '', email: '', password: '', confirmPassword: '' });
     setSuccess('');
 
     try {
@@ -56,10 +62,17 @@ const Signup = () => {
           navigate('/login');
         }, 2000); // Delay for 2 seconds before redirecting
       } else {
-        setError(data.detail || 'Signup failed. Please try again.');
+        // Set specific errors based on the response
+        if (data.error === 'Username already taken') {
+          setErrors((prev) => ({ ...prev, username: 'Username already taken' }));
+        } else if (data.error === 'Email already taken') {
+          setErrors((prev) => ({ ...prev, email: 'Email already taken' }));
+        } else {
+          setErrors((prev) => ({ ...prev, general: 'Signup failed. Please try again.' }));
+        }
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      setErrors((prev) => ({ ...prev, general: 'An error occurred. Please try again.' }));
     } finally {
       setIsSubmitting(false);
     }
@@ -71,6 +84,7 @@ const Signup = () => {
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
           <h1>Welcome to Campuslife</h1>
           <p>Create a new account</p>
+          
           <input
             type="text"
             placeholder="Username"
@@ -78,6 +92,8 @@ const Signup = () => {
             value={formData.username}
             onChange={handleChange}
           />
+          {errors.username && <p className="error">{errors.username}</p>}
+
           <input
             type="email"
             placeholder="Email"
@@ -85,6 +101,8 @@ const Signup = () => {
             value={formData.email}
             onChange={handleChange}
           />
+          {errors.email && <p className="error">{errors.email}</p>}
+
           <input
             type="password"
             placeholder="Password"
@@ -92,6 +110,8 @@ const Signup = () => {
             value={formData.password}
             onChange={handleChange}
           />
+          {errors.password && <p className="error">{errors.password}</p>}
+
           <input
             type="password"
             placeholder="Confirm Password"
@@ -99,8 +119,11 @@ const Signup = () => {
             value={formData.confirmPassword}
             onChange={handleChange}
           />
-          {error && <p className="error">{error}</p>}
+          {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
+
+          {errors.general && <p className="error">{errors.general}</p>}
           {success && <p className="success">{success}</p>}
+
           <button className="button4" type="submit" disabled={!isFormValid()}>
             {isSubmitting ? 'Please Wait...' : 'Sign Up'}
           </button>

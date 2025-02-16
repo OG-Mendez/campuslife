@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Navbar from './assets/components/Navbar/Navbar';
 import FilterSearch from './assets/components/FilterSearch/FilterSearch';
@@ -9,20 +9,26 @@ import About from './assets/components/About Us/About';
 import Contact from './assets/components/Contact/Contact';
 import Login from './assets/components/Login/Login';
 import Signup from './assets/components/Login/Signup';
+import Logout from './assets/components/Login/Logout';
 import { UserProvider } from './assets/components/Context/UserContext';
 import ForgotPassword from './assets/components/Login/ForgottenPassword';
+import MapComponent from './assets/components/Map/Map';
+import { trackPageView } from './assets/components/G-Analytics';
 
 function App() {
   const [filteredLodges, setFilteredLodges] = useState([]);
+  const location = useLocation();
 
   const handleApplyFilters = (lodges) => {
     setFilteredLodges(lodges);
   };
 
-  const location = useLocation();
+  useEffect(() => {
+    trackPageView(location.pathname);
+  }, [location]);
 
   // Check if the current path is login, signup, or forgot-password
-  const hideFooterPaths = ['/login', '/signup', '/forgot-password'];
+  const hideFooterPaths = ['/login', '/signup', '/forgot-password', '/map'];
 
   return (
     <UserProvider>
@@ -44,7 +50,9 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/logout" element={<Logout />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/map" element={<MapComponent />} />
           </Routes>
         </div>
         {/* Conditionally render Footer based on the current path */}
