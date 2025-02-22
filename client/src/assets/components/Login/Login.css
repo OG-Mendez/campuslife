@@ -55,7 +55,7 @@
   .form-container4 a {
     display: block;
     text-align: center;
-    margin-top: 10px;
+    margin-top: 1px;
     color: #f89e44;
     text-decoration: none;
   }
@@ -98,6 +98,27 @@
     font-size: 14px;
     text-align: center;
     margin-bottom: 10px;
+  }
+
+  .links-container {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  /* Left-aligned forgot password link */
+  .left-link {
+    text-align: left;
+    color: #f89e44;
+    text-decoration: none;
+  }
+  
+  /* Right-aligned sign up link */
+  .right-link {
+    text-align: right;
+    color: #f89e44;
+    text-decoration: none;
   }
   
   /* Media query for responsive design */

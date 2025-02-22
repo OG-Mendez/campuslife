@@ -144,7 +144,15 @@
   background: #0056b3;
 }
 
-
+.mapp-button{
+  text-decoration: none;
+  background-color: black !important;
+  color: white;
+  border: 1px solid black;
+  font-size: medium;
+  /* text-align: center; */
+  padding: 4px 12px ;
+}
 
 
 

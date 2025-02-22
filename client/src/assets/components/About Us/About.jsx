@@ -31,15 +31,23 @@ const About = () => {
                     <a href="https://www.linkedin.com/in/david-uchenna/">
                         <img src="/images/pdavid.jpeg" alt="" />
                         <h4>David Uchenna</h4>
-                        <p>Co-founder & Backend Developer</p>
+                        <p>Co-founder & CPO</p>
                         </a>
                     </div>
 
                     <div>
                     <a href="http://linkedin.com/in/jeremiah-chukwuemeka-902b13276">
-                        <img src="/images/jeremie.jpg" alt="" />
+                        <img src="/images/jeremie.jpeg" alt="" />
                         <h4>Jeremiah Chukwuemeka</h4>
-                        <p>Co-founder & Frontend Developer</p>
+                        <p>Co-founder & CTO</p>
+                        </a>
+                    </div>
+
+                    <div>
+                    <a href="https://www.linkedin.com/in/ben-joan-chinemerem-5a4a4121b">
+                        <img src="/images/ben joan.jpeg" alt="" />
+                        <h4>Ben Joan Chinemerem </h4>
+                        <p>Co-founder & COO</p>
                         </a>
                     </div>
                     </div>
