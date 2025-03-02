@@ -24,6 +24,7 @@ urlpatterns += [
     path('api/questions/', views.list_questions, name='list_questions'),
     path('api/create_answer/', views.create_answer, name='create_answer'),
     path('api/answers/', views.list_answers, name='list_answers'),
+    path('api/stacked_answers/', views.list_answers_stacked, name='list_answers_stacked'),
     path('api/create_reply/', views.create_reply, name='create_reply'),
     path('api/replies/', views.list_replies, name='list_replies'),
     path('api/reviews/', views.list_reviews, name='list_reviews_api'),

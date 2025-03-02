@@ -68,6 +68,12 @@ class Question(models.Model):
     downvote_question = models.ManyToManyField(User, related_name='downvoted_question', blank=True)
     notification = models.ManyToManyField(User, related_name='notification')
 
+    def total_upvote_question(self):
+        return self.upvote_question.count()
+
+    def total_downvote_question(self):
+        return self.downvote_question.count()
+
 
 class Answer(models.Model):
     answered_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='answers', default=1)
@@ -76,6 +82,20 @@ class Answer(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     upvote_answer = models.ManyToManyField(User, related_name='upvoted_answer', blank=True)
     downvote_answer = models.ManyToManyField(User, related_name='downvoted_answer', blank=True)
+    parent_answer = models.ForeignKey('self', null=True, blank=True, on_delete=models.CASCADE,
+                                      related_name='child_answers')
+
+    def get_conversation_thread(self):
+        thread = [self]
+        for child in self.child_answers.all().order_by('created_at'):
+            thread.extend(child.get_conversation_thread())
+        return thread
+
+    def total_upvote_answer(self):
+        return self.upvote_answer.count()
+
+    def total_downvote_answer(self):
+        return self.downvote_answer.count()
 
 
 class Reply(models.Model):
@@ -86,3 +106,21 @@ class Reply(models.Model):
     likes = models.ManyToManyField(User, related_name='liked_replies', blank=True)
     dislikes = models.ManyToManyField(User, related_name='disliked_replies', blank=True)
 
+    def __str__(self):
+        return f"Reply by {self.replied_by.username} for Answer {self.answer.id}"
+
+    def total_likes(self):
+        return self.likes.count()
+
+    def total_dislikes(self):
+        return self.dislikes.count()
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_notification")
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="question_notification")
+    notify = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} will be notified if new answers to {self.question.question}"

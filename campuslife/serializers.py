@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Picture, Interior, Rating, Review, Question, Answer, Reply
-from django.conf import settings
+from .models import Picture, Interior, Rating, Review, Question, Answer, Reply, Notification
 
 
 class PictureSerializer(serializers.ModelSerializer):
@@ -48,20 +47,35 @@ class ReviewSerializer(serializers.ModelSerializer):
         return obj.rating.picture_rating.id if obj.rating and obj.rating.picture_rating else None
 
 
-class QuestionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Question
-        fields = '__all__'
-
-
 class AnswerSerializer(serializers.ModelSerializer):
+    net_score = serializers.SerializerMethodField()
+
     class Meta:
         model = Answer
-        fields = '__all__'
+        fields = ['id', 'question_replied', 'answered_by', 'content', 'created_at', 'net_score']
+
+    def get_net_score(self, obj):
+        return obj.upvote_answer.count() - obj.downvote_answer.count()
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    answers = AnswerSerializer(many=True, read_only=True, source='answers.all')
+
+    class Meta:
+        model = Question
+        fields = ['id', 'asked_by', 'question', 'created_at', 'upvote_question', 'downvote_question', 'answers']
+
+    def get_net_score(self, obj):
+        return obj.upvote_answer.count() - obj.downvote_answer.count()
 
 
 class ReplySerializer(serializers.ModelSerializer):
     class Meta:
         model = Reply
-        fields = '__all__'
+        fields = ['id', 'replied_by', 'answer', 'content', 'created_at', 'likes', 'dislikes']
 
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'
