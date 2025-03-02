@@ -19,6 +19,8 @@ const Signup = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate(); // Initialize useNavigate hook
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
     setErrors({ ...errors, [e.target.name]: '' }); // Clear error when user types
@@ -40,7 +42,7 @@ const Signup = () => {
     setSuccess('');
 
     try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/signup/', {
+      const response = await fetch(`${API_BASE_URL}/signup/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -7,9 +7,11 @@ const Logout = () => {
   const navigate = useNavigate();
   const { setUser } = useContext(UserContext); // Access the context to manage user state
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/logout/', {
+      const response = await fetch(`${API_BASE_URL}/logout/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

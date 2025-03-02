@@ -136,11 +136,11 @@ export default function MapComponent() {
         transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         className="text-center"
       >
-        <h1 className="text-4xl font-bold text-gray-800 mb-4 animate-pulse">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4 animate-pulse">
           🚧 Map Is Coming Soon 🚧
         </h1>
-        <p className="text-lg text-gray-600">
-          We're working hard to bring this feature to life. Stay tuned!
+        <p className="text-lg text-gray-900">
+           Stay tuned!
         </p>
       </motion.div>
 
