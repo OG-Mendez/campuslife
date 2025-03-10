@@ -8,8 +8,6 @@ const LodgesGrid = ({ filteredLodges }) => {
   const [isLoading, setIsLoading] = useState(true);
   const lodgesPerPage = 12;
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -33,7 +31,7 @@ const LodgesGrid = ({ filteredLodges }) => {
       const fetchLodges = async () => {
         setIsLoading(true);
         try {
-          const response = await fetch(`${API_BASE_URL}/pictures/`);
+          const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
           if (!response.ok) throw new Error('Network response was not ok');
 
           const data = await response.json();

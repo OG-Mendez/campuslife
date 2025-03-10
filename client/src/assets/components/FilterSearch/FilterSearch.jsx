@@ -20,12 +20,10 @@ const FilterSearch = ({ applyFilters }) => {
   const handleClose = () => setShowModal(false);
   const handleMapClick = () => navigate('/map')
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
   const handleSearch = async (searchTerm) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}`);
+      const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
       if (!response.ok) throw new Error('Failed to fetch suggestions');
 
       const lodges = await response.json();
@@ -45,7 +43,7 @@ const FilterSearch = ({ applyFilters }) => {
   const handleFilterApply = async (vacancy, location, price) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/pictures/`);
+      const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
       if (!response.ok) throw new Error('Failed to fetch lodges');
 
       const lodges = await response.json();

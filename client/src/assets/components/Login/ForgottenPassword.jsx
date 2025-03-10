@@ -8,15 +8,13 @@ const ForgotPassword = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
   const handlePasswordReset = async (e) => {
     e.preventDefault();
     setMessage('');
     setError('');
 
     try {
-      const response = await fetch(`${API_BASE_URL}/password-reset/`, {
+      const response = await fetch('https://campuslife-c9je.onrender.com/api/password-reset/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -12,8 +12,6 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -25,7 +23,7 @@ const Login = () => {
     setSuccess('');
   
     try {
-      const response = await fetch(`${API_BASE_URL}/login/`, {
+      const response = await fetch('https://campuslife-c9je.onrender.com/api/login/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
