@@ -1,7 +1,7 @@
 // src/analytics.js
 import ReactGA from 'react-ga4';
 
-const TRACKING_ID = import.meta.env.VITE_GOOGLE_ANALYTICS_ID; // Store in .env
+const TRACKING_ID = 'G-42YTB69VZX';
 ReactGA.initialize(TRACKING_ID);
 
 export const trackPageView = (path) => {

@@ -12,13 +12,10 @@ const LodgeDetail = () => {
   const [lodge, setLodge] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const CLOUDINARY_BASE_URL = import.meta.env.VITE_CLOUDINARY_BASE_URL;
-
   useEffect(() => {
     const fetchLodge = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/pictures/`);
+        const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         const selectedLodge = data.find((lodge) => lodge.id === parseInt(id));
@@ -27,7 +24,7 @@ const LodgeDetail = () => {
         if (selectedLodge?.image) {
           const prefix = 'image/upload/';
           if (selectedLodge.image.startsWith(prefix)) {
-            selectedLodge.image = `${CLOUDINARY_BASE_URL}/${selectedLodge.image}`;
+            selectedLodge.image = `https://res.cloudinary.com/dem4ececb/${selectedLodge.image}`;
           }
         }
         setLodge(selectedLodge);
