@@ -9,13 +9,10 @@ const GetSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/reviews/`);
+        const response = await fetch('https://campuslife-c9je.onrender.com/api/reviews/');
         if (!response.ok) {
           throw new Error('Failed to fetch reviews.');
         }

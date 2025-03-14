@@ -7,13 +7,11 @@ import './LodgeCard.css';
 const LodgeCard = ({ lodge }) => {
   const location = useLocation();
 
-  const CLOUDINARY_BASE_URL = import.meta.env.VITE_CLOUDINARY_BASE_URL;
-
   // Helper function to clean the image URL
   const cleanImageUrl = (url) => {
     if (url && url.startsWith("image/upload/")) {
         // Append the full Cloudinary base URL
-        return `${CLOUDINARY_BASE_URL}/${url}`;
+        return `https://res.cloudinary.com/dem4ececb/${url}`;
     }
     return url;
 };

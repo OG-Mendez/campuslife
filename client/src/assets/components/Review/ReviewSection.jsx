@@ -13,9 +13,6 @@ function ReviewSection() {
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-
   const stars = Array(5).fill(0);
 
   const handleClick = (value) => {
@@ -67,7 +64,7 @@ function ReviewSection() {
 
       console.log('Sending payload:', payload);
 
-      const response = await fetch(`${API_BASE_URL}/create_review/`, {
+      const response = await fetch('https://campuslife-c9je.onrender.com/api/create_review/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
