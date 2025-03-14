@@ -7,7 +7,7 @@ from cloudinary.models import CloudinaryField
 class Picture(models.Model):
 
     lodge_name = models.CharField(max_length=100, default='')
-    image = CloudinaryField('image', folder='media/pictures')
+    image = models.ImageField(upload_to="lodges/")
     lodge_location = models.CharField(max_length=100)
     lodge_price = models.CharField(null=True, blank=True)
     available_vacancy = models.IntegerField(default=0)
@@ -23,7 +23,7 @@ class Picture(models.Model):
 
 class Interior(models.Model):
     picture = models.ForeignKey(Picture, related_name='interior_images', on_delete=models.CASCADE)
-    interior_image = CloudinaryField('interior_image', folder='media/interior')
+    interior_image = models.ImageField(upload_to="interiors/")
 
     def __str__(self):
         return f"Interior of {self.picture.lodge_name}"
