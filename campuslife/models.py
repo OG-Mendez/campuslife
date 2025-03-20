@@ -61,7 +61,7 @@ class Review(models.Model):
 
 
 class Question(models.Model):
-    asked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questions', default=1)
+    asked_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='questioned_by', default=1)
     question = models.TextField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     upvote_question = models.ManyToManyField(User, related_name='upvoted_question', blank=True)
@@ -74,9 +74,12 @@ class Question(models.Model):
     def total_downvote_question(self):
         return self.downvote_question.count()
 
+    def total_answers(self):
+        return self.answers.count()
+
 
 class Answer(models.Model):
-    answered_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='answers', default=1)
+    answered_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='answered_by', default=1)
     question_replied = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='answers')
     content = models.TextField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -97,9 +100,12 @@ class Answer(models.Model):
     def total_downvote_answer(self):
         return self.downvote_answer.count()
 
+    def total_replies(self):
+        return self.replies.count()
+
 
 class Reply(models.Model):
-    replied_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='replies')
+    replied_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='replied_by')
     answer = models.ForeignKey(Answer, on_delete=models.CASCADE, related_name='replies')
     content = models.TextField(null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -124,3 +130,18 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.username} will be notified if new answers to {self.question.question}"
+
+
+class Room(models.Model):
+    lodge = models.ForeignKey(Picture, on_delete=models.CASCADE, related_name="room")
+    room_number = models.IntegerField(null=True)
+    display = models.BooleanField(default=False)
+
+
+class Payment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_points")
+    point = models.IntegerField(default=0)
+    room_image = models.FileField(upload_to="payment/")
+
+
+
