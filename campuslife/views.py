@@ -361,10 +361,13 @@ def average_rating_for_lodge(request):
         picture = Picture.objects.get(id=lodge_id)
         lodge_name = picture.lodge_name
 
+        total_raters = Rating.objects.filter(picture_rating_id=lodge_id).count()
+
         return Response({
             'lodge_id': lodge_id,
             'lodge_name': lodge_name,
-            'average_rating': round(average, 1) if average else None
+            'average_rating': round(average, 1) if average else None,
+            'total_raters': total_raters
         }, status=status.HTTP_200_OK)
     except Picture.DoesNotExist:
         return Response({'error': 'Lodge not found'}, status=status.HTTP_404_NOT_FOUND)
