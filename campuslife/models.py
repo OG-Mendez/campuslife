@@ -135,8 +135,8 @@ class Notification(models.Model):
 class Room(models.Model):
     lodge = models.ForeignKey(Picture, on_delete=models.CASCADE, related_name="room")
     room_number = models.PositiveIntegerField(null=True)
-    room_image = models.ImageField(upload_to="payment/")
-    room_video = models.FileField(upload_to="payment/")
+    room_image = models.ImageField(upload_to="payment/", blank=True)
+    room_video = models.FileField(upload_to="payment/", blank=True)
     display = models.BooleanField(default=False)
     caretaker_number = models.IntegerField(null=True)
 
