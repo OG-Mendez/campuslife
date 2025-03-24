@@ -211,20 +211,24 @@ def interior_view_api(request):
 @permission_classes([IsAuthenticated])
 def get_room(request):
     lodge_id = request.query_params.get('id')
-    picture = Picture.objects.filter(id=lodge_id)
-    room = Room.objects.get(lodge=picture)
-
-    serializer = RoomSerializer(room, many=True)
-    return Response(serializer.data)
+    try:
+        picture = Picture.objects.get(id=lodge_id)
+        rooms = Room.objects.filter(lodge=picture)
+        serializer = RoomSerializer(rooms, many=True)
+        return Response(serializer.data)
+    except Picture.DoesNotExist:
+        return Response({"error": "Picture not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Room.DoesNotExist:
+        return Response({"error": "No rooms found for this picture"}, status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def wallet_balance(request):
-    wallet = Wallet.objects.filter(user=request.user)
+    wallet, created = Wallet.objects.get_or_create(user=request.user, defaults={'point': 0})
 
     serializer = WalletSerializer(wallet)
-    return Response(serializer.data)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -292,7 +296,7 @@ def payment_callback(request):
                     amount_paid = transaction_data['amount'] / 100
 
                     wallet = Wallet.objects.filter(user=request.user)
-                    wallet.point = amount_paid // 400
+                    wallet.point += amount_paid // 400
                     wallet.save()
 
                     return Response({'reference': reference})
