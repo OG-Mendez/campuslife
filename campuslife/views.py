@@ -1,11 +1,13 @@
+import os
+
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime
 from random import sample, seed
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from .models import Picture, Interior, Rating, Review, Question, Answer, Reply, Notification
+from .models import Picture, Interior, Rating, Review, Question, Answer, Reply, Notification, Room, Wallet, Order
 from .serializers import PictureSerializer, InteriorSerializer, RatingSerializer, QuestionSerializer, AnswerSerializer, \
-    ReplySerializer, ReviewSerializer, NotificationSerializer
+    ReplySerializer, ReviewSerializer, NotificationSerializer, RoomSerializer, WalletSerializer
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -19,6 +21,7 @@ from django.db.models import Avg
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from django.db.models import Count
+from paystackapi.transaction import Transaction
 
 
 # Create your views here.
@@ -202,6 +205,104 @@ def interior_view_api(request):
     interiors = Interior.objects.all()
     serializer = InteriorSerializer(interiors, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_room(request):
+    lodge_id = request.query_params.get('id')
+    picture = Picture.objects.filter(id=lodge_id)
+    room = Room.objects.get(lodge=picture)
+
+    serializer = RoomSerializer(room, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def wallet_balance(request):
+    wallet = Wallet.objects.filter(user=request.user)
+
+    serializer = WalletSerializer(wallet)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def payment(request):
+    lodge_id = request.query_params.get('id')
+    display = request.data.get('display')
+
+    if display == "True":
+        coin = Wallet.objects.filter(user=request.user)
+        if coin.point > 0:
+            coin.point -= 1
+            coin.save()
+
+            """picture = Picture.objects.filter(id=lodge_id)
+            room = Room.objects.filter(lodge=picture)
+            room.display = True
+            """
+            return Response("Point deducted, display Info of ", status=status.HTTP_202_ACCEPTED)
+
+        else:
+            return Response("please purchase points to view info", status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def fund_account(request):
+    amount = int(request.data.get('amount')) * 100
+    email = request.user.email
+    reference = Transaction.generate_reference()
+
+    try:
+        transaction = Transaction.initialize(
+            key=os.getenv('PAYSTACK_SECRET_KEY'),
+            amount=amount,
+            email=email,
+            reference=reference,
+            callback_url=os.getenv('PAYSTACK_CALLBACK_URL')
+        )
+        auth_url = transaction['data']['authorization_url']
+        Order.objects.create(user=request.user, amount=amount / 100, email=email, reference=reference)
+        return Response(auth_url, status=status.HTTP_200_OK)
+    except Exception as e:
+        error_message = f"Payment initialization failed: {e}"
+        return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@csrf_exempt
+def payment_callback(request):
+    if request.method == 'GET':
+        reference = request.GET.get('reference')
+        if reference:
+            try:
+                verification = Transaction.verify(
+                    key=os.getenv('PAYSTACK_SECRET_KEY'),
+                    reference=reference
+                )
+                if verification['status'] and verification['data']['status'] == 'success':
+                    order = Order.objects.get(reference=reference)
+                    order.is_paid = True
+                    order.save()
+                    transaction_data = verification['data']
+                    amount_paid = transaction_data['amount'] / 100
+
+                    wallet = Wallet.objects.filter(user=request.user)
+                    wallet.point = amount_paid // 400
+                    wallet.save()
+
+                    return Response({'reference': reference})
+                else:
+                    return Response({'reference': reference, 'reason': verification['data']['gateway_response']})
+            except Exception as e:
+                error_message = f"Payment verification failed: {e}"
+                return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'error_message': 'No reference provided.'})
 
 
 @api_view(['GET'])

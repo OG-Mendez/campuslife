@@ -191,7 +191,6 @@ CLOUDINARY_STORAGE = {
     'USE_FILENAME': True,
     'UNIQUE_FILENAME': False,
 }
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 
 REST_FRAMEWORK = {
@@ -214,6 +213,6 @@ HONEYBADGER = {
   'API_KEY': 'hbp_ilYE2NA8C0FwqK2nl5T10fADYdaLKg4ErzL4'
 }
 
-"""CSRF_COOKIE_NAME = 'csrftoken'
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'Lax'"""
+PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
+PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')
+PAYSTACK_CALLBACK_URL = "https://campuslifetechnologies.com.ng/payment/callback/"

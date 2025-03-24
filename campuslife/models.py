@@ -134,14 +134,22 @@ class Notification(models.Model):
 
 class Room(models.Model):
     lodge = models.ForeignKey(Picture, on_delete=models.CASCADE, related_name="room")
-    room_number = models.IntegerField(null=True)
+    room_number = models.PositiveIntegerField(null=True)
+    room_image = models.ImageField(upload_to="payment/")
+    room_video = models.FileField(upload_to="payment/")
     display = models.BooleanField(default=False)
+    caretaker_number = models.IntegerField(null=True)
 
 
-class Payment(models.Model):
+class Wallet(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_points")
-    point = models.IntegerField(default=0)
-    room_image = models.FileField(upload_to="payment/")
+    point = models.PositiveIntegerField(default=0)
 
 
-
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_wallet")
+    amount = models.PositiveIntegerField(blank=False)
+    email = models.EmailField(blank=True)
+    reference = models.CharField(null=True, blank=True)
+    is_paid = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
