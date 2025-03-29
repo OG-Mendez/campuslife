@@ -49,7 +49,6 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class AnswerSerializer(serializers.ModelSerializer):
     net_score = serializers.SerializerMethodField()
-    total_replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Answer
@@ -59,12 +58,11 @@ class AnswerSerializer(serializers.ModelSerializer):
         return obj.upvote_answer.count() - obj.downvote_answer.count()
 
     def get_total_replies(self, obj):
-        return obj.replies.count()
+        return obj.total_replies.count()
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     answers = AnswerSerializer(many=True, read_only=True, source='answers.all')
-    total_answers = serializers.SerializerMethodField()
 
     class Meta:
         model = Question
@@ -74,8 +72,8 @@ class QuestionSerializer(serializers.ModelSerializer):
     def get_net_score(self, obj):
         return obj.upvote_answer.count() - obj.downvote_answer.count()
 
-    def get_total_answers(self):
-        return self.answers.count()
+    def get_total_answers(self, obj):
+        return obj.total_answers.count()
 
 
 class ReplySerializer(serializers.ModelSerializer):
