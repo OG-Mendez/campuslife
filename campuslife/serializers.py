@@ -1,5 +1,6 @@
+from django.utils import timezone
 from rest_framework import serializers
-from .models import Picture, Interior, Rating, Review, Question, Answer, Reply, Notification, Room, Wallet
+from .models import Picture, Interior, Rating, Review, Question, Answer, Reply, Notification, Room, Wallet, Agent, AgentEarning
 
 
 class PictureSerializer(serializers.ModelSerializer):
@@ -100,3 +101,57 @@ class WalletSerializer(serializers.ModelSerializer):
     class Meta:
         model = Wallet
         fields = '__all__'
+
+
+class AgentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Agent
+        fields = '__all__'
+
+
+class RoomUploadSerializer(serializers.Serializer):
+    lodge = serializers.IntegerField()
+    number = serializers.CharField(max_length=10)
+    image = serializers.ImageField(required=False)
+    video = serializers.FileField(required=True)
+    agent = serializers.PrimaryKeyRelatedField(queryset=Agent.objects.all())
+
+    def create(self, validated_data):
+        agent = validated_data.pop('agent')
+        image_file = validated_data.pop('image', None)
+        video_file = validated_data.pop('video', None)
+        lodge_id = validated_data.pop('lodge')
+        room_number = validated_data.pop('number')
+
+        try:
+            lodge = Picture.objects.get(id=lodge_id)
+        except Picture.DoesNotExist:
+            raise serializers.ValidationError({"lodge": "Lodge with this id does not exist."})
+
+        room = Room.objects.create(
+            lodge=lodge,
+            room=agent,
+            room_number=room_number,
+            room_image=image_file,
+            room_video=video_file)
+        return room
+
+    def to_representation(self, instance):
+        return {
+            "id": instance.id,
+            "lodge": instance.lodge.lodge_name,
+            "number": instance.room_number,
+            "image_url": instance.room_image.url if instance.room_image else None,
+            "video_url": instance.room_video.url if instance.room_video else None,
+        }
+
+
+class AgentEarningSerializer(serializers.ModelSerializer):
+    payout_date = serializers.DateTimeField(
+        format="%Y-%m-%d %H:%M:%S",
+        default_timezone=timezone.get_current_timezone(),
+    )
+
+    class Meta:
+        model = AgentEarning
+        fields = ("payout_date", "payout_amount")

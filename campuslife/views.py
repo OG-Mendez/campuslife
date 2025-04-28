@@ -1,26 +1,30 @@
 import os
 
 from django.shortcuts import render, get_object_or_404, redirect
-from datetime import datetime
+from datetime import datetime, timedelta
 from random import sample, seed
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from .models import Picture, Interior, Rating, Review, Question, Answer, Reply, Notification, Room, Wallet, Order
-from .serializers import PictureSerializer, InteriorSerializer, RatingSerializer, QuestionSerializer, AnswerSerializer, \
-    ReplySerializer, ReviewSerializer, NotificationSerializer, RoomSerializer, WalletSerializer
+from rest_framework.decorators import api_view, permission_classes, parser_classes
+from .models import Picture, Interior, Rating, Review, Question, Answer, Reply, Notification, Room, Wallet, Order, \
+    Agent, AgentEarning
+from .serializers import PictureSerializer, InteriorSerializer, QuestionSerializer, AnswerSerializer, \
+    ReplySerializer, ReviewSerializer, NotificationSerializer, RoomSerializer, WalletSerializer, RoomUploadSerializer, \
+    AgentEarningSerializer
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth import authenticate, login
 from rest_framework.authtoken.models import Token
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.contrib import messages
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from django.db.models import Count
+from django.db.models import Count, F
 from paystackapi.transaction import Transaction
 
 
@@ -215,6 +219,12 @@ def get_room(request):
         picture = Picture.objects.get(id=lodge_id)
         rooms = Room.objects.filter(lodge=picture)
         serializer = RoomSerializer(rooms, many=True)
+        response_data = serializer.data
+        has_paid = request.session.get(f'viewed_lodge_{lodge_id}', False)
+
+        for room_data in response_data:
+            room_data['display'] = has_paid
+
         return Response(serializer.data)
     except Picture.DoesNotExist:
         return Response({"error": "Picture not found"}, status=status.HTTP_404_NOT_FOUND)
@@ -234,23 +244,24 @@ def wallet_balance(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def payment(request):
-    lodge_id = request.query_params.get('id')
-    display = request.data.get('display')
+    room_id = request.query_params.get('id')
 
-    if display == "True":
-        coin = Wallet.objects.filter(user=request.user)
-        if coin.point > 0:
-            coin.point -= 1
-            coin.save()
+    coin = Wallet.objects.filter(user=request.user)
+    if coin.point > 0:
+        coin.point = F('point') - 1
+        coin.save()
 
-            """picture = Picture.objects.filter(id=lodge_id)
-            room = Room.objects.filter(lodge=picture)
-            room.display = True
-            """
-            return Response("Point deducted, display Info of ", status=status.HTTP_202_ACCEPTED)
+        request.session[f'viewed_room_{room_id}'] = True
+        request.session.modified = True
 
-        else:
-            return Response("please purchase points to view info", status=status.HTTP_400_BAD_REQUEST)
+        room = Room.objects.filter(id=room_id)
+        room.agent.wallet = F('point') + 0.5
+        room.save()
+
+        return Response("Point deducted, display Info of ", status=status.HTTP_202_ACCEPTED)
+
+    else:
+        return Response("please purchase points to view info", status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -307,6 +318,172 @@ def payment_callback(request):
                 return Response(error_message, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'error_message': 'No reference provided.'})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_agent(request):
+    try:
+        first_name = request.data.get('first_name')
+        last_name = request.data.get('last_name')
+        phone_number = request.data.get('number')
+
+        if not first_name or not last_name or not phone_number:
+            return Response("All fields are required", status=status.HTTP_400_BAD_REQUEST)
+
+        agent = Agent.objects.create(user=request.user, first_name=first_name, last_name=last_name, phone_number=phone_number)
+
+        return Response(f"Agent created successfully for {agent.first_name}", status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({"error": f"An error was encountered : {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def agent_update_vacancy(request):
+    lodge = request.data.get("id")
+    try:
+        user = request.user
+        agent = Agent.objects.get(user=user)
+
+        if not agent:
+            return Response("You do not have an agent account", status=status.HTTP_403_FORBIDDEN)
+
+        lodge_name = Picture.objects.get(id=lodge)
+
+        room, created = Room.objects.get_or_create(
+            lodge=lodge_name,
+            room_id=agent.id,
+            defaults={'vacancy_indicator': True}
+        )
+
+        if not created:
+            return Response("This lodge already has a vacancy specified for this agent", status=status.HTTP_200_OK)
+
+        return Response("Vacancy successfully updated", status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": f"Unexpected error: {e}"})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def your_rooms(request):
+    try:
+        user = request.user
+        room = Room.objects.filter(room__user=user)
+
+        serializer = RoomSerializer(room, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": f"Unexpected error: {e}"})
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def available_rooms(request):
+
+    now = timezone.now()
+    exp = now - timedelta(days=2)
+    room = Room.objects.filter(vacancy_indicator=True, date_created__gt=exp)
+
+    serializer = RoomSerializer(room, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def pending_rooms(request):
+    now = timezone.now()
+
+    exp = now - timedelta(days=2)
+    room = Room.objects.filter(date_created__gte=exp, room__user=request.user)
+
+    serializer = RoomSerializer(room, many=True)
+
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes((MultiPartParser, FormParser))
+def upload_room(request):
+    lodge = request.data.get("lodge")
+    room_number = request.data.get("number")
+    room_image = request.data.get("image")
+    room_video = request.data.get("video")
+
+    try:
+        agent = Agent.objects.get(user=request.user)
+    except Agent.DoesNotExist:
+        return Response({"error": "Agent associated with this user not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+    data = {
+        "lodge": lodge,
+        "number": room_number,
+        "image": room_image,
+        "video": room_video,
+        "agent": agent.id,
+    }
+
+    serializer = RoomUploadSerializer(data=data, context={'request': request})
+    if serializer.is_valid():
+        room = serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def withdraw(request):
+    try:
+        agent = Agent.objects.get(user=request.user)
+        agent_name = agent.first_name
+        agent_lastname = agent.last_name
+        balance = agent.wallet
+        emails = ['michaelezechukwu0@gmail.com', 'chinenyedavid781@gmail.com', 'jerrychukwu01@gmail.com']
+        for _ in emails:
+            email = EmailMessage(
+                subject='Agent Withdrawal Request',
+                body=f'Agent {agent_name} {agent_lastname} initiated a withdrawal of amount: {balance}',
+                from_email='info@campuslifetechnologies.com.ng',
+                to=[_],
+                headers={'Content-Type': 'text/plain'},
+            )
+            email.send()
+
+        return Response("Withdrawal initiated successfully", status=status.HTTP_202_ACCEPTED)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def payout_history(request):
+    try:
+        agent_earnings = AgentEarning.objects.filter(
+            agent__user=request.user
+        ).order_by("-payout_date")
+        serializer = AgentEarningSerializer(agent_earnings, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except AgentEarning.DoesNotExist:
+        return Response(
+            {"error": "No payout history found for this agent."},
+            status=status.HTTP_200_OK,
+        )
+    except Exception as e:
+        print(f"Error in payout_history: {e}")
+        return Response(
+            {"error": "An unexpected error occurred"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
 
 @api_view(['GET'])

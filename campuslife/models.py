@@ -5,7 +5,6 @@ from cloudinary.models import CloudinaryField
 
 
 class Picture(models.Model):
-
     lodge_name = models.CharField(max_length=100, default='')
     image = models.ImageField(upload_to="lodges/")
     lodge_location = models.CharField(max_length=100)
@@ -132,13 +131,25 @@ class Notification(models.Model):
         return f"{self.user.username} will be notified if new answers to {self.question.question}"
 
 
+class Agent(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent")
+    first_name = models.CharField(null=False)
+    last_name = models.CharField(null=False)
+    phone_number = models.BigIntegerField()
+    wallet = models.IntegerField(null=True, blank=True)
+
+
 class Room(models.Model):
     lodge = models.ForeignKey(Picture, on_delete=models.CASCADE, related_name="room")
-    room_number = models.PositiveIntegerField(null=True)
-    room_image = models.ImageField(upload_to="payment/", blank=True)
-    room_video = models.FileField(upload_to="payment/", blank=True)
+    room = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="room_agent")
+    room_number = models.PositiveIntegerField(blank=True, null=True)
+    room_image = models.ImageField(upload_to="payment/", blank=True, null=True)
+    room_video = models.FileField(upload_to="payment/", blank=True, null=True)
     display = models.BooleanField(default=False)
+    vacancy_indicator = models.BooleanField(default=False)
     caretaker_number = models.IntegerField(null=True)
+    date_created = models.DateTimeField(auto_now_add=True)
+    agent_indicator = models.IntegerField(null=True, blank=True)
 
 
 class Wallet(models.Model):
@@ -153,3 +164,9 @@ class Order(models.Model):
     reference = models.CharField(null=True, blank=True)
     is_paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class AgentEarning(models.Model):
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name="earning")
+    payout_date = models.DateTimeField()
+    payout_amount = models.IntegerField(null=True, blank=True)
