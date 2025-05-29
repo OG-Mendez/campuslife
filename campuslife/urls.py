@@ -32,7 +32,6 @@ urlpatterns += [
     path('api/upload_room/', views.upload_room, name='upload_room'),
     path('api/withdraw/', views.withdraw, name='agent_withdraw'),
     path('api/payout_history/', views.payout_history, name='payout_history'),
-    path('api/replies/', views.list_replies, name='list_replies'),
     path('api/reviews/', views.list_reviews, name='list_reviews_api'),
     path('api/like_review/', views.like_dislike_review, name='like_dislike_review'),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
