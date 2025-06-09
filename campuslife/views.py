@@ -2,14 +2,11 @@ import os
 
 from django.shortcuts import render, get_object_or_404, redirect
 from datetime import datetime, timedelta
-from random import sample, seed
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, parser_classes
-from .models import Picture, Interior, Rating, Review, Question, Answer, Reply, Notification, Room, Wallet, Order, \
-    Agent, AgentEarning
-from .serializers import PictureSerializer, InteriorSerializer, QuestionSerializer, AnswerSerializer, \
-    ReplySerializer, ReviewSerializer, NotificationSerializer, RoomSerializer, WalletSerializer, RoomUploadSerializer, \
-    AgentEarningSerializer
+from .models import Picture, Interior, Rating, Review, Room, Wallet, Order, Agent, AgentEarning
+from .serializers import PictureSerializer, InteriorSerializer,\
+    ReviewSerializer, RoomSerializer, WalletSerializer, RoomUploadSerializer, AgentEarningSerializer
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -22,8 +19,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
-import numpy as np
-from sentence_transformers import SentenceTransformer
 from django.db.models import Count, F
 from paystackapi.transaction import Transaction
 
