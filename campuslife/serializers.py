@@ -90,7 +90,8 @@ class RoomUploadSerializer(serializers.Serializer):
             room=agent,
             room_number=room_number,
             room_image=image_file,
-            room_video=video_file)
+            room_video=video_file,
+            uploaded=True)
         return room
 
     def to_representation(self, instance):

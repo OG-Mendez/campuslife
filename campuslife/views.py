@@ -251,6 +251,7 @@ def payment(request):
 
         room = Room.objects.filter(id=room_id)
         room.agent.wallet = F('point') + 0.5
+        room.room_inspection = F('room_inspection') + 1
         room.save()
 
         return Response("Point deducted, display Info of ", status=status.HTTP_202_ACCEPTED)
@@ -326,7 +327,10 @@ def create_agent(request):
         if not first_name or not last_name or not phone_number:
             return Response("All fields are required", status=status.HTTP_400_BAD_REQUEST)
 
-        agent = Agent.objects.create(user=request.user, first_name=first_name, last_name=last_name, phone_number=phone_number)
+        if Agent.objects.filter(user=request.user):
+            return Response("Please login to your account", status=status.HTTP_403_FORBIDDEN)
+
+        agent = Agent.objects.get_or_create(user=request.user, first_name=first_name, last_name=last_name, phone_number=phone_number)
 
         return Response(f"Agent created successfully for {agent.first_name}", status=status.HTTP_201_CREATED)
 
@@ -337,7 +341,10 @@ def create_agent(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def agent_update_vacancy(request):
-    lodge = request.data.get("id")
+    lodge = request.query_params.get("id")
+    room_number = request.data.get("number")
+    room_type = request.data.get("type")
+    room_floor = request.data.get("floor")
     try:
         user = request.user
         agent = Agent.objects.get(user=user)
@@ -350,11 +357,24 @@ def agent_update_vacancy(request):
         room, created = Room.objects.get_or_create(
             lodge=lodge_name,
             room_id=agent.id,
-            defaults={'vacancy_indicator': True}
+            room_number=room_number,
+            room_type=room_type,
+            room_floor=room_floor,
         )
 
         if not created:
             return Response("This lodge already has a vacancy specified for this agent", status=status.HTTP_200_OK)
+
+        emails = ['michaelezechukwu0@gmail.com', 'chinenyedavid781@gmail.com', 'jerrychukwu01@gmail.com']
+        for _ in emails:
+            email = EmailMessage(
+                subject='Agent Vacancy Update',
+                body=f'Agent {agent.first_name} {agent.last_name} updated a vacancy for {lodge_name}',
+                from_email='info@campuslifetechnologies.com.ng',
+                to=[_],
+                headers={'Content-Type': 'text/plain'},
+            )
+            email.send()
 
         return Response("Vacancy successfully updated", status=status.HTTP_200_OK)
 
@@ -383,7 +403,7 @@ def available_rooms(request):
 
     now = timezone.now()
     exp = now - timedelta(days=2)
-    room = Room.objects.filter(vacancy_indicator=True, date_created__gt=exp)
+    room = Room.objects.filter(vacancy_indicator=True, date_created__gt=exp, uploaded=False)
 
     serializer = RoomSerializer(room, many=True)
 
@@ -396,7 +416,7 @@ def pending_rooms(request):
     now = timezone.now()
 
     exp = now - timedelta(days=2)
-    room = Room.objects.filter(date_created__gte=exp, room__user=request.user)
+    room = Room.objects.filter(date_created__gte=exp, uploaded=False)
 
     serializer = RoomSerializer(room, many=True)
 
@@ -407,8 +427,8 @@ def pending_rooms(request):
 @permission_classes([IsAuthenticated])
 @parser_classes((MultiPartParser, FormParser))
 def upload_room(request):
-    lodge = request.data.get("lodge")
-    room_number = request.data.get("number")
+    lodge = request.query_params.get("lodge")
+    room_number = request.query_params.get("number")
     room_image = request.data.get("image")
     room_video = request.data.get("video")
 
@@ -423,6 +443,7 @@ def upload_room(request):
         "image": room_image,
         "video": room_video,
         "agent": agent.id,
+        "uploaded": True
     }
 
     serializer = RoomUploadSerializer(data=data, context={'request': request})
@@ -431,6 +452,38 @@ def upload_room(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def account_details(request):
+    account_number = request.data.get("number")
+    bank_name = request.data.get("bank")
+    try:
+        agent = Agent.objects.get(user=request.user)
+    except Agent.DoesNotExist:
+        return Response({"error": "Agent associated with this user not found."}, status=status.HTTP_400_BAD_REQUEST)
+
+    agent.account_number = account_number
+    agent.bank_name = bank_name
+    agent.save()
+
+    return Response("Updated payment information", status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def room_earnings(request):
+    try:
+        user = request.user
+        room = Room.objects.filter(room__user=user)
+
+        serializer = RoomSerializer(room, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": f"Unexpected error: {e}"})
 
 
 @api_view(['POST'])
