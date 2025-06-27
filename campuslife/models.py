@@ -138,8 +138,8 @@ class Agent(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="agent")
     first_name = models.CharField(null=False)
     last_name = models.CharField(null=False)
-    phone_number = models.BigIntegerField()
-    account_number = models.BigIntegerField(blank=True, null=True)
+    phone_number = models.CharField()
+    account_number = models.CharField(blank=True, null=True)
     bank_name = models.CharField(null=True, blank=True, max_length=256)
     wallet = models.IntegerField(null=True, blank=True)
 
@@ -156,7 +156,8 @@ class Room(models.Model):
     display = models.BooleanField(default=False)
     uploaded = models.BooleanField(default=False)
     vacancy_indicator = models.BooleanField(default=False)
-    caretaker_number = models.IntegerField(null=True)
+    caretaker_number = models.CharField(null=True)
+    agent = models.IntegerField(null=True, blank=True)
     date_created = models.DateTimeField(auto_now_add=True)
     agent_indicator = models.IntegerField(null=True, blank=True)
 

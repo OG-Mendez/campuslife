@@ -356,7 +356,7 @@ def agent_update_vacancy(request):
 
         room, created = Room.objects.get_or_create(
             lodge=lodge_name,
-            room_id=agent.id,
+            room=agent.id,
             room_number=room_number,
             room_type=room_type,
             room_floor=room_floor,
@@ -403,7 +403,7 @@ def available_rooms(request):
 
     now = timezone.now()
     exp = now - timedelta(days=2)
-    room = Room.objects.filter(vacancy_indicator=True, date_created__gt=exp, uploaded=False)
+    room = Room.objects.filter(vacancy_indicator=True, date_created__lt=exp, uploaded=False)
 
     serializer = RoomSerializer(room, many=True)
 
@@ -412,11 +412,8 @@ def available_rooms(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def pending_rooms(request):
-    now = timezone.now()
-
-    exp = now - timedelta(days=2)
-    room = Room.objects.filter(date_created__gte=exp, uploaded=False)
+def all_rooms(request):
+    room = Room.objects.all()
 
     serializer = RoomSerializer(room, many=True)
 
