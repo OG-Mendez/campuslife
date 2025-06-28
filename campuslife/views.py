@@ -324,11 +324,11 @@ def create_agent(request):
         last_name = request.data.get('last_name')
         phone_number = request.data.get('number')
 
+        if Agent.objects.filter(user=request.user):
+            return Response("Please login to your account", status=status.HTTP_202_ACCEPTED)
+
         if not first_name or not last_name or not phone_number:
             return Response("All fields are required", status=status.HTTP_400_BAD_REQUEST)
-
-        if Agent.objects.filter(user=request.user):
-            return Response("Please login to your account", status=status.HTTP_403_FORBIDDEN)
 
         agent = Agent.objects.get_or_create(user=request.user, first_name=first_name, last_name=last_name, phone_number=phone_number)
 
