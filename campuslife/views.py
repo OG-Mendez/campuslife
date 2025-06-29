@@ -355,7 +355,7 @@ def agent_update_vacancy(request):
         lodge_name = Picture.objects.get(id=lodge)
 
         room, created = Room.objects.get_or_create(
-            lodge=lodge_name,
+            lodge=lodge_name.lodge_name,
             room=agent.id,
             room_number=room_number,
             room_type=room_type,
@@ -435,7 +435,7 @@ def upload_room(request):
         return Response({"error": "Agent associated with this user not found."}, status=status.HTTP_400_BAD_REQUEST)
 
     data = {
-        "lodge": lodge,
+        "lodge": lodge.lodge_name,
         "number": room_number,
         "image": room_image,
         "video": room_video,
@@ -472,12 +472,20 @@ def account_details(request):
 @permission_classes([IsAuthenticated])
 def room_earnings(request):
     try:
+        data = {}
         user = request.user
         room = Room.objects.filter(room__user=user)
 
-        serializer = RoomSerializer(room, many=True)
+        for _ in room:
+            data.update({_.room_number: _.room_inspection})
+            if _.room_inspection is None:
+                final_value = 0
+            else:
+                final_value = _.room_inspection
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            data.update({_.room_number: final_value})
+
+        return Response(data, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({"error": f"Unexpected error: {e}"})

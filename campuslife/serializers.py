@@ -86,7 +86,7 @@ class RoomUploadSerializer(serializers.Serializer):
             raise serializers.ValidationError({"lodge": "Lodge with this id does not exist."})
 
         room = Room.objects.create(
-            lodge=lodge,
+            lodge=lodge.lodge_name,
             room=agent,
             room_number=room_number,
             room_image=image_file,
