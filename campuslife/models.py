@@ -141,7 +141,7 @@ class Agent(models.Model):
     phone_number = models.CharField()
     account_number = models.CharField(blank=True, null=True)
     bank_name = models.CharField(null=True, blank=True, max_length=256)
-    wallet = models.IntegerField(null=True, blank=True)
+    wallet = models.IntegerField(default=0)
 
 
 class Room(models.Model):

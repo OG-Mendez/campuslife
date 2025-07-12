@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from .models import Picture, Interior, Rating, Review, Room, Wallet, Order, Agent, AgentEarning
 from .serializers import PictureSerializer, InteriorSerializer,\
-    ReviewSerializer, RoomSerializer, WalletSerializer, RoomUploadSerializer, AgentEarningSerializer
+    ReviewSerializer, RoomSerializer, WalletSerializer, RoomUploadSerializer, AgentEarningSerializer,\
+    AgentSerializer
 from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -338,6 +339,26 @@ def create_agent(request):
         return Response({"error": f"An error was encountered : {e}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def agent_pass(request):
+    user = request.user
+    agent = Agent.objects.filter(user=user)
+    if agent:
+        return Response("Agent exists", status=status.HTTP_200_OK)
+    else:
+        return Response("Agent does not exist", status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_agent(request):
+    user = request.user
+    agent = Agent.objects.filter(user=user)
+    serializer = AgentSerializer(agent)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def agent_update_vacancy(request):
@@ -475,15 +496,22 @@ def room_earnings(request):
         data = {}
         user = request.user
         room = Room.objects.filter(room__user=user)
+        lodge = room.first().lodge
+        lodge_id = lodge.id
+        lodge_name = Picture.objects.get(id=lodge_id).lodge_name
 
         for _ in room:
-            data.update({_.room_number: _.room_inspection})
+            data.update({"room number": _.room_number})
+            data.update({"number of inspections": _.room_inspection})
+
             if _.room_inspection is None:
                 final_value = 0
             else:
                 final_value = _.room_inspection
 
-            data.update({_.room_number: final_value})
+            data.update({"total earnings": final_value*400})
+            data.update({"lodge_id": lodge_id})
+            data.update({"lodge_name": lodge_name})
 
         return Response(data, status=status.HTTP_200_OK)
 
