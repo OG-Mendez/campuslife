@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FilterModal from '../FilterModal/FilterModal';
 import './FilterSearch.css';
+import { API_BASE_URL } from '../../../config/api';
 
 const FilterSearch = ({ applyFilters }) => {
   const [showModal, setShowModal] = useState(false);
@@ -23,7 +24,7 @@ const FilterSearch = ({ applyFilters }) => {
   const handleSearch = async (searchTerm) => {
     setLoading(true);
     try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
+      const response = await fetch(`${API_BASE_URL}/pictures/`);
       if (!response.ok) throw new Error('Failed to fetch suggestions');
 
       const lodges = await response.json();
@@ -43,7 +44,7 @@ const FilterSearch = ({ applyFilters }) => {
   const handleFilterApply = async (vacancy, location, price) => {
     setLoading(true);
     try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
+      const response = await fetch(`${API_BASE_URL}/pictures/`);
       if (!response.ok) throw new Error('Failed to fetch lodges');
 
       const lodges = await response.json();

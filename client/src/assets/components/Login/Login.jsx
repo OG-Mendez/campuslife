@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../Context/UserContext';
 import { Link } from 'react-router-dom';
 import './Login.css';
+import { API_BASE_URL } from '../../../config/api';
 
 const Login = () => {
   const { setUser } = useContext(UserContext);
@@ -23,7 +24,7 @@ const Login = () => {
     setSuccess('');
   
     try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/login/', {
+      const response = await fetch(`${API_BASE_URL}/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

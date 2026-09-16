@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../Context/UserContext'; 
-import './Logout.css'// Adjust the path to your UserContext file
+import './Logout.css'
+import { API_BASE_URL } from '../../../config/api';
 
 const Logout = () => {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ const Logout = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/logout/', {
+      const response = await fetch(`${API_BASE_URL}/logout/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

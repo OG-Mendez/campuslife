@@ -32,7 +32,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['campuslife-c9je.onrender.com', '127.0.0.1', 'https://www.campuslifetechnologies.com.ng',
-                 'https://angry-trixie-david-nenye-4c47ed6b.koyeb.app', 'https://campuslife-xmb7-david-uchennas-projects.vercel.app']
+                 'https://angry-trixie-david-nenye-4c47ed6b.koyeb.app', 'https://campuslife-xmb7-david-uchennas-projects.vercel.app', 'localhost']
 
 
 # Application definition
@@ -76,7 +76,8 @@ CORS_ALLOWED_ORIGINS = [
     "https://campuslife-xmb7.vercel.app",
     "https://www.campuslifetechnologies.com.ng",
     "https://angry-trixie-david-nenye-4c47ed6b.koyeb.app",
-    'https://campuslife-xmb7-david-uchennas-projects.vercel.app'
+    'https://campuslife-xmb7-david-uchennas-projects.vercel.app',
+    "http://localhost:3000"
 
 ]
 
@@ -164,23 +165,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = "campuslife1"
-AWS_S3_CUSTOM_DOMAIN = "d2vsftgl2k06m2.cloudfront.net"
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME", "campuslife1")
+AWS_S3_CUSTOM_DOMAIN = os.getenv("AWS_S3_CUSTOM_DOMAIN", "")
 
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-
-AWS_S3_OBJECT_PARAMETERS = {
-    "CacheControl": "max-age=86400",
-}
-
-MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
-MEDIA_ROOT = "media/"
+if AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    AWS_S3_OBJECT_PARAMETERS = {"CacheControl": "max-age=86400"}
+    MEDIA_URL = f"https://{AWS_S3_CUSTOM_DOMAIN}/media/"
+else:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
 
 
 cloudinary.config(
-    cloud_name='dem4ececb',
-    api_key='361993149326335',
-    api_secret=os.getenv("CLOUD_API_SECRET")
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUD_API_SECRET"),
 )
 
 
@@ -209,9 +210,12 @@ EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'info@campuslifetechnologies.com.ng'
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
-HONEYBADGER = {
-  'API_KEY': 'hbp_ilYE2NA8C0FwqK2nl5T10fADYdaLKg4ErzL4'
-}
+if os.getenv("EMAIL_HOST_PASSWORD"):
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+HONEYBADGER = {"API_KEY": os.getenv("HONEYBADGER_API_KEY", "")}
 
 PAYSTACK_SECRET_KEY = os.getenv('PAYSTACK_SECRET_KEY')
 PAYSTACK_PUBLIC_KEY = os.getenv('PAYSTACK_PUBLIC_KEY')

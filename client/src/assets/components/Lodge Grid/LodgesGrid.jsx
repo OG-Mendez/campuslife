@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import LodgeCard from '../Lodge Card/LodgeCard';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './LodgesGrid.css';
+import { API_BASE_URL } from '../../../config/api';
 
 const LodgesGrid = ({ filteredLodges }) => {
   const [lodges, setLodges] = useState([]);
@@ -31,7 +32,7 @@ const LodgesGrid = ({ filteredLodges }) => {
       const fetchLodges = async () => {
         setIsLoading(true);
         try {
-          const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
+          const response = await fetch(`${API_BASE_URL}/pictures/`);
           if (!response.ok) throw new Error('Network response was not ok');
 
           const data = await response.json();

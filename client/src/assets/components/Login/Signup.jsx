@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
+import { API_BASE_URL } from '../../../config/api';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -40,7 +41,7 @@ const Signup = () => {
     setSuccess('');
 
     try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/signup/', {
+      const response = await fetch(`${API_BASE_URL}/signup/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './ForgottenPassword.css';
+import { API_BASE_URL } from '../../../config/api';
 
 const ForgotPassword = () => {
   const [username, setUsername] = useState('');
@@ -14,7 +15,7 @@ const ForgotPassword = () => {
     setError('');
 
     try {
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/password-reset/', {
+      const response = await fetch(`${API_BASE_URL}/password-reset/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

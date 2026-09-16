@@ -4,6 +4,7 @@ import 'react-lazy-load-image-component/src/effects/blur.css';
 import './LodgeDetail.css';
 import ReviewSection from '../Review/ReviewSection';
 import AverageRating from '../Review/AverageRating';
+import { API_BASE_URL } from '../../../config/api';
 
 const LodgeDetail = () => {
   const { id } = useParams();
@@ -15,7 +16,7 @@ const LodgeDetail = () => {
   useEffect(() => {
     const fetchLodge = async () => {
       try {
-        const response = await fetch('https://campuslife-c9je.onrender.com/api/pictures/');
+        const response = await fetch(`${API_BASE_URL}/pictures/`);
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         const selectedLodge = data.find((lodge) => lodge.id === parseInt(id));

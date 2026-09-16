@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaStar } from 'react-icons/fa';
 import './AverageRating.css'
+import { API_BASE_URL } from '../../../config/api';
 
 const AverageRating = ({ lodgeId }) => {
   const [rating, setRating] = useState(null);
@@ -8,7 +9,7 @@ const AverageRating = ({ lodgeId }) => {
   useEffect(() => {
     const fetchRating = async () => {
       try {
-        const response = await fetch(`https://campuslife-c9je.onrender.com/api/average_rating/?id=${lodgeId}`);
+        const response = await fetch(`${API_BASE_URL}/average_rating/?id=${lodgeId}`);
         const data = await response.json();
         setRating(data.average_rating);
       } catch (error) {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import './LikeDislikeButton.css';
+import { API_BASE_URL } from '../../../config/api';
 
 const GetSection = () => {
   const { id: lodgeId } = useParams(); // Numeric lodge ID
@@ -12,7 +13,7 @@ const GetSection = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await fetch('https://campuslife-c9je.onrender.com/api/reviews/');
+        const response = await fetch(`${API_BASE_URL}/reviews/`);
         if (!response.ok) {
           throw new Error('Failed to fetch reviews.');
         }
@@ -41,7 +42,7 @@ const GetSection = () => {
   }
 
   try {
-    const response = await fetch('https://campuslife-c9je.onrender.com/api/like_review/', {
+    const response = await fetch(`${API_BASE_URL}/like_review/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

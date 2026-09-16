@@ -3,9 +3,10 @@ import { FaStar } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import GetSection from './LikeDislikeButton';
 import './ReviewSection.css';
+import { API_BASE_URL } from '../../../config/api';
 
 function ReviewSection() {
-  const { id: lodgeId } = useParams(); // Get lodge ID from URL params
+  const { id: lodgeId } = useParams(); 
   const [currentValue, setCurrentValue] = useState(0);
   const [hoverValue, setHoverValue] = useState(undefined);
   const [reviewText, setReviewText] = useState('');
@@ -64,7 +65,7 @@ function ReviewSection() {
 
       console.log('Sending payload:', payload);
 
-      const response = await fetch('https://campuslife-c9je.onrender.com/api/create_review/', {
+      const response = await fetch(`${API_BASE_URL}/create_review/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

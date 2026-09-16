@@ -21,8 +21,8 @@ from django.core.mail import EmailMessage
 from django.contrib.auth.tokens import default_token_generator
 from django.db.models import Avg
 from django.db.models import Count, F
-from paystackapi.transaction import Transaction
-
+from campuslife_services.payments import PaystackService
+from campuslife_services.notifications import NotificationService
 
 # Create your views here.
 
@@ -242,40 +242,40 @@ def wallet_balance(request):
 def payment(request):
     room_id = request.query_params.get('id')
 
-    coin = Wallet.objects.filter(user=request.user)
-    if coin.point > 0:
-        coin.point = F('point') - 1
-        coin.save()
+    if request.session.get(f'viewed_room_{room_id}'):
+        return Response("Room already unlocked.", status=status.HTTP_200_OK)
 
-        request.session[f'viewed_room_{room_id}'] = True
-        request.session.modified = True
+    try:
+        room = Room.objects.get(id=room_id)
+    except Room.DoesNotExist:
+        return Response("Room not found.", status=status.HTTP_404_NOT_FOUND)
 
-        room = Room.objects.filter(id=room_id)
-        room.agent.wallet = F('point') + 0.5
-        room.room_inspection = F('room_inspection') + 1
-        room.save()
+    wallet, _ = Wallet.objects.get_or_create(user=request.user)
 
-        return Response("Point deducted, display Info of ", status=status.HTTP_202_ACCEPTED)
-
-    else:
+    if wallet.point <= 0:
         return Response("please purchase points to view info", status=status.HTTP_400_BAD_REQUEST)
 
+    Wallet.objects.filter(pk=wallet.pk).update(point=F('point') - 1)
+
+    request.session[f'viewed_room_{room_id}'] = True
+    request.session.modified = True
+
+    agent = room.room  
+    Agent.objects.filter(pk=agent.pk).update(wallet=F('wallet') + 1)
+    Room.objects.filter(pk=room.pk).update(room_inspection=F('room_inspection') + 1)
+
+    return Response("Point deducted, display Info of ", status=status.HTTP_202_ACCEPTED)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def fund_account(request):
-    amount = int(request.data.get('amount')) * 100
     email = request.user.email
-    reference = Transaction.generate_reference()
-
+    
     try:
-        transaction = Transaction.initialize(
-            key=os.getenv('PAYSTACK_SECRET_KEY'),
-            amount=amount,
-            email=email,
-            reference=reference,
-            callback_url=os.getenv('PAYSTACK_CALLBACK_URL')
-        )
+        amount = int(request.data.get('amount')) * 100
+        reference = PaystackService.generate_reference()
+        transaction = PaystackService().initialize_transaction(
+        amount=amount, email=email, reference=reference)
         auth_url = transaction['data']['authorization_url']
         Order.objects.create(user=request.user, amount=amount / 100, email=email, reference=reference)
         return Response(auth_url, status=status.HTTP_200_OK)
@@ -292,20 +292,21 @@ def payment_callback(request):
         reference = request.GET.get('reference')
         if reference:
             try:
-                verification = Transaction.verify(
-                    key=os.getenv('PAYSTACK_SECRET_KEY'),
-                    reference=reference
-                )
+                verification = PaystackService().verify_transaction(reference=reference)
                 if verification['status'] and verification['data']['status'] == 'success':
                     order = Order.objects.get(reference=reference)
+
+                    if order.is_paid:
+                        return Response({'reference': reference, 'note': 'Already processed'})
+
                     order.is_paid = True
                     order.save()
                     transaction_data = verification['data']
                     amount_paid = transaction_data['amount'] / 100
 
-                    wallet = Wallet.objects.filter(user=request.user)
-                    wallet.point += amount_paid // 400
-                    wallet.save()
+                    wallet, _ = Wallet.objects.get_or_create(user=order.user)
+                    points_earned = int(amount_paid // 400)
+                    Wallet.objects.filter(pk=wallet.pk).update(point=F('point') + points_earned)
 
                     return Response({'reference': reference})
                 else:
@@ -386,16 +387,9 @@ def agent_update_vacancy(request):
         if not created:
             return Response("This lodge already has a vacancy specified for this agent", status=status.HTTP_200_OK)
 
-        emails = ['michaelezechukwu0@gmail.com', 'chinenyedavid781@gmail.com', 'jerrychukwu01@gmail.com']
-        for _ in emails:
-            email = EmailMessage(
-                subject='Agent Vacancy Update',
-                body=f'Agent {agent.first_name} {agent.last_name} updated a vacancy for {lodge_name}',
-                from_email='info@campuslifetechnologies.com.ng',
-                to=[_],
-                headers={'Content-Type': 'text/plain'},
-            )
-            email.send()
+        NotificationService().notify_admins(
+        subject="Agent Vacancy Update",
+        body=f"Agent {agent.first_name} {agent.last_name} updated a vacancy for {lodge_name}")
 
         return Response("Vacancy successfully updated", status=status.HTTP_200_OK)
 
@@ -527,16 +521,9 @@ def withdraw(request):
         agent_name = agent.first_name
         agent_lastname = agent.last_name
         balance = agent.wallet
-        emails = ['michaelezechukwu0@gmail.com', 'chinenyedavid781@gmail.com', 'jerrychukwu01@gmail.com']
-        for _ in emails:
-            email = EmailMessage(
-                subject='Agent Withdrawal Request',
-                body=f'Agent {agent_name} {agent_lastname} initiated a withdrawal of amount: {balance}',
-                from_email='info@campuslifetechnologies.com.ng',
-                to=[_],
-                headers={'Content-Type': 'text/plain'},
-            )
-            email.send()
+        NotificationService().notify_admins(
+        subject="Agent Withdrawal Request",
+        body=f"Agent {agent_name} {agent_lastname} initiated a withdrawal of amount: {balance}")
 
         return Response("Withdrawal initiated successfully", status=status.HTTP_202_ACCEPTED)
 
